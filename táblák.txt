@@ -1,0 +1,11 @@
+Könyvek (ISBN, cím, kiadás, Kiadó.név, oldalszám, kötés, méret, ár)
+Szerzok (név, Könyvek.ISBN)
+Mufaj (mufaj, Könyvek.ISBN)
+Sorozat (név, Könyvek.ISBN)
+Áruházak (azonosító, irányítószám, város, utca, házszám)
+Raktáron (Könyvek.ISBN, Áruházak.azonosító, darabszám)
+Kiadó (név, irányítószám, város, utca, házszám)
+Kuponok (kód, kedvezmény, Mufajok.mufaj)
+
+Felhasználók (vezetéknév, keresztnév, jelszó, email, irányítószám, város, utca, házszám, szüldátum)
+Rendelések (Felhasználók.email, Könyvek.ISBN, darabszám, átvételihelyszín, megrendelésidopontja, átvételidopontja)
