@@ -1,9 +1,14 @@
 package hu.adatb;
 
+import hu.adatb.controller.UserController;
+import hu.adatb.view.AddUserDialog;
+import hu.adatb.view.LoginUserDialog;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import oracle.jdbc.pool.OracleDataSource;
 
@@ -13,37 +18,36 @@ import java.sql.*;
  * JavaFX App
  */
 public class App extends Application {
+    UserController controller = new UserController();
 
     @Override
     public void start(Stage stage) {
-        Statement stmt = null;
+        VBox root = new VBox(createMenuBar(stage));
 
-        try {
-            OracleDataSource ods = new OracleDataSource();
-            Class.forName ("oracle.jdbc.OracleDriver");
-            ods.setURL("jdbc:oracle:thin:@localhost:1521:xe");
-            Connection conn = ods.getConnection("SYSTEM","SYSTEM");
-            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,  ResultSet.CONCUR_READ_ONLY);
-        } catch ( Exception ex ) {
-            ex.printStackTrace();
-        }
-
-        try{
-            ResultSet rs = stmt.executeQuery("SELECT * FROM FELHASZNALO");
-            while(rs.next()){
-                System.out.println(rs.getString(1) + " " + rs.getString(2) + " " + rs.getString(3) + " "+ rs.getString(4));
-            }
-        } catch (Exception ex){
-            ex.printStackTrace();
-        }
-
-        var javaVersion = SystemInfo.javaVersion();
-        var javafxVersion = SystemInfo.javafxVersion();
-
-        var label = new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
-        var scene = new Scene(new StackPane(label), 640, 480);
+        Scene scene = new Scene(root, 640, 480);
         stage.setScene(scene);
         stage.show();
+    }
+
+    private MenuBar createMenuBar(Stage stage){
+        MenuBar menuBar = new MenuBar();
+        Menu userMenu = new Menu("Felhasználó");
+        Menu bookMenu = new Menu("Könyv");
+
+        menuBar.getMenus().addAll(userMenu, bookMenu);
+
+        MenuItem addUser = new MenuItem("Regisztráció");
+        MenuItem loginUser = new MenuItem("Bejelentkezés");
+        MenuItem logoutUser = new MenuItem("Kijelentkezés");
+        MenuItem addBook = new MenuItem("Könyv felvétele");
+
+        addUser.setOnAction(e -> new AddUserDialog(controller));
+        loginUser.setOnAction(e -> new LoginUserDialog(controller));
+
+        userMenu.getItems().addAll(addUser, loginUser, logoutUser);
+        bookMenu.getItems().addAll(addBook);
+
+        return menuBar;
     }
 
     public static void main(String[] args) {
