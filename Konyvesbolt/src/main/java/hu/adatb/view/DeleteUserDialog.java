@@ -2,7 +2,6 @@ package hu.adatb.view;
 
 import hu.adatb.controller.SessionController;
 import hu.adatb.controller.UserController;
-import hu.adatb.model.User;
 import hu.adatb.util.Encoder;
 import hu.adatb.util.Utils;
 import javafx.geometry.Insets;
@@ -16,56 +15,49 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class LoginUserDialog extends Stage {
-    UserController controller;
-    SessionController sessionController;
+public class DeleteUserDialog extends Stage {
+    private UserController controller;
+    private UserDataDialog parent;
+    private SessionController sessionController;
 
-    public LoginUserDialog(UserController controller){
+    public DeleteUserDialog(UserController controller, UserDataDialog parent){
         this.controller = controller;
+        this.parent = parent;
         sessionController = SessionController.getInstance();
         construct();
     }
 
-    private void construct(){
+    public void construct(){
         GridPane grid = new GridPane();
         grid.setVgap(10);
         grid.setHgap(10);
         grid.setPadding(new Insets(10));
 
-        TextField emailField = new TextField();
-        TextField passwordField = new TextField();
+        TextField passwordTextField = new TextField();
 
-        grid.add(new Text("Email: "), 0, 0);
-        grid.add(emailField, 1, 0);
+        grid.add(new Text("A törléshez erősítse meg a jelszavát!"), 0, 0, 2, 1);
         grid.add(new Text("Jelszó:"), 0, 1);
-        grid.add(passwordField, 1, 1);
+        grid.add(passwordTextField, 1, 1);
 
-        Button okButton = new Button("Bejelentkezés");
+        Button okButton = new Button("Törlés");
         okButton.setOnAction(e -> {
-            if(emailField.getText().contentEquals("")){
-                Utils.showWarning("Az email nem lehet üres!");
-                return;
-            }
-            if(passwordField.getText().contentEquals("")){
-                Utils.showWarning("A jelszó nem lehet üres!");
-                return;
-            }
+            String password = Encoder.GetMD5(passwordTextField.getText());
+            if(password.equals(sessionController.getUser().getPassword())){
+                if(Utils.showConfirmation("Biztos benne, hogy törli a felhasználóját? (Ez nem visszafordítható)")){
+                    parent.userDeleted();
+                    close();
+                } else {
+                    Utils.showWarning("A törlés sikertelen!");
+                    close();
+                }
 
-            User user = new User();
-            user.setEmail(emailField.getText());
-            user.setPassword(Encoder.GetMD5(passwordField.getText()));
-            if(controller.login(user)){
-                user = controller.getUser(user.getEmail());
-                sessionController.login(user);
-                close();
             } else {
-                Utils.showWarning("Sikertelen bejelentkezés!");
+                Utils.showWarning("A jelszó nem megfelelő!");
                 return;
             }
         });
 
         Button cancelButton = new Button("Mégse");
-        cancelButton.setCancelButton(true);
         cancelButton.setOnAction(e -> {
             close();
         });
@@ -80,7 +72,8 @@ public class LoginUserDialog extends Stage {
 
         Scene scene = new Scene(grid);
         setScene(scene);
-        setTitle("Bejelentkezés");
+        setTitle("Törlés");
         show();
+
     }
 }

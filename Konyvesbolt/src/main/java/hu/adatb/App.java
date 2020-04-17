@@ -1,8 +1,7 @@
 package hu.adatb;
 
-import hu.adatb.controller.UserController;
-import hu.adatb.view.AddUserDialog;
-import hu.adatb.view.LoginUserDialog;
+import hu.adatb.controller.*;
+import hu.adatb.view.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
@@ -10,15 +9,16 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import oracle.jdbc.pool.OracleDataSource;
-
-import java.sql.*;
 
 /**
  * JavaFX App
  */
 public class App extends Application {
-    UserController controller = new UserController();
+    private UserController userController = new UserController();
+    private CouponController couponController = new CouponController();
+    PublisherController publisherController = new PublisherController();
+    ShopController shopController = new ShopController();
+    private SessionController sessionController = SessionController.getInstance();
 
     @Override
     public void start(Stage stage) {
@@ -33,19 +33,59 @@ public class App extends Application {
         MenuBar menuBar = new MenuBar();
         Menu userMenu = new Menu("Felhasználó");
         Menu bookMenu = new Menu("Könyv");
+        Menu publisherMenu = new Menu("Kiadó");
+        Menu shopMenu = new Menu("Áruházak");
+        Menu couponMenu = new Menu("Kuponok");
 
-        menuBar.getMenus().addAll(userMenu, bookMenu);
+        menuBar.getMenus().addAll(userMenu, bookMenu, publisherMenu, shopMenu, couponMenu);
 
         MenuItem addUser = new MenuItem("Regisztráció");
         MenuItem loginUser = new MenuItem("Bejelentkezés");
         MenuItem logoutUser = new MenuItem("Kijelentkezés");
+        MenuItem userPage = new MenuItem("Saját adatok");
         MenuItem addBook = new MenuItem("Könyv felvétele");
+        MenuItem addPublisher = new MenuItem("Kiadó felvétele");
+        MenuItem deletePublisher = new MenuItem("Kiadó törlése");
+        MenuItem updatePublisher = new MenuItem("Kiadó adatainak frissítése");
+        MenuItem listPublisher = new MenuItem("Kiadók listázása");
+        MenuItem addShop = new MenuItem("Áruház felvétele");
+        MenuItem deleteShop = new MenuItem("Áruház törlése");
+        MenuItem updateShop = new MenuItem("Áruház adatainak frissítése");
+        MenuItem listShop = new MenuItem("Áruházak listázása");
+        MenuItem addCoupon = new MenuItem("Új kupon");
+        MenuItem deleteCoupon = new MenuItem("Kupon törlése");
+        MenuItem modifyCoupon = new MenuItem("Kupon módosítása");
 
-        addUser.setOnAction(e -> new AddUserDialog(controller));
-        loginUser.setOnAction(e -> new LoginUserDialog(controller));
+        addUser.setOnAction(e -> new AddUserDialog(userController));
+        loginUser.setOnAction(e -> new LoginUserDialog(userController));
+        userPage.setOnAction(e -> new UserDataDialog(userController));
+        logoutUser.setOnAction(e -> sessionController.logout());
 
-        userMenu.getItems().addAll(addUser, loginUser, logoutUser);
+        addPublisher.setOnAction(e -> new AddPublisherDialog(publisherController));
+        deletePublisher.setOnAction(e -> new DeletePublisherDialog(publisherController));
+        updatePublisher.setOnAction(e -> new UpdatePublisherDialog(publisherController));
+        listPublisher.setOnAction(e -> new ListPublisherDialog(publisherController));
+
+        addShop.setOnAction(e -> new AddShopDialog(shopController));
+        deleteShop.setOnAction(e -> new DeleteShopDialog(shopController));
+        updateShop.setOnAction(e -> new UpdateShopDialog(shopController));
+        listShop.setOnAction(e -> new ListShopDialog(shopController));
+
+        addCoupon.setOnAction(e -> new AddCouponDialog(couponController));
+        deleteCoupon.setOnAction(e -> new DeleteCouponDialog(couponController));
+        modifyCoupon.setOnAction(e -> new ModifyCouponDialog(couponController));
+
+        addUser.visibleProperty().bind(sessionController.isLoggedIn().not());
+        loginUser.visibleProperty().bind(sessionController.isLoggedIn().not());
+        userPage.visibleProperty().bind(sessionController.isLoggedIn());
+        logoutUser.visibleProperty().bind(sessionController.isLoggedIn());
+
+
+        userMenu.getItems().addAll(addUser, loginUser, userPage, logoutUser);
         bookMenu.getItems().addAll(addBook);
+        publisherMenu.getItems().addAll(addPublisher,deletePublisher, updatePublisher, listPublisher);
+        shopMenu.getItems().addAll(addShop, deleteShop, updateShop, listShop);
+        couponMenu.getItems().addAll(addCoupon, deleteCoupon, modifyCoupon);
 
         return menuBar;
     }

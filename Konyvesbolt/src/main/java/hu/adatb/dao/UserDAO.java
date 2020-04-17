@@ -3,6 +3,9 @@ package hu.adatb.dao;
 import hu.adatb.model.User;
 
 public interface UserDAO {
-    boolean add(User user);
+    boolean addUser(User user);
     boolean login(User user);
+    User getUser(String email);
+    boolean deleteUser(String email);
+    boolean modifyUser(User user, String email);
 }
