@@ -47,6 +47,7 @@ CREATE TABLE aruhazak (
     varos VARCHAR2(50),
     utca VARCHAR2(100),
     hazszam VARCHAR2(10),
+    nev VARCHAR2(50),
     CONSTRAINT ARUHAZAK_PRIMARY_KEY PRIMARY KEY (azonosito)
 );
 
