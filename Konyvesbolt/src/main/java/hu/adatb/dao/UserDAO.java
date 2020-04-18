@@ -8,4 +8,5 @@ public interface UserDAO {
     User getUser(String email);
     boolean deleteUser(String email);
     boolean modifyUser(User user, String email);
+    boolean isAdmin(String email);
 }

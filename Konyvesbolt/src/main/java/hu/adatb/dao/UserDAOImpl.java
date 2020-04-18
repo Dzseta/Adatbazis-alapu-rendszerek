@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 public class UserDAOImpl implements UserDAO {
     private Connection conn;
 
-    private static final String ADD_USER_STR = "INSERT INTO FELHASZNALOK VALUES (?,?,?,?,?,?,?,?,?) ";
+    private static final String ADD_USER_STR = "INSERT INTO FELHASZNALOK VALUES (?,?,?,?,?,?,?,?,?,0) ";
 
     private static final String LOGIN_USER_STR = "SELECT * FROM FELHASZNALOK WHERE EMAIL = ? AND JELSZO = ? ";
 
@@ -65,6 +65,23 @@ public class UserDAOImpl implements UserDAO {
 
             if(rs.next()){
                 return true;
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAdmin(String email) {
+        try (PreparedStatement st = conn.prepareStatement(GET_USER_STR)){
+            st.setString(1, email);
+
+            ResultSet rs = st.executeQuery();
+
+            if(rs.next()){
+                return rs.getInt("ADMIN") == 1;
             }
 
         } catch (Exception e){

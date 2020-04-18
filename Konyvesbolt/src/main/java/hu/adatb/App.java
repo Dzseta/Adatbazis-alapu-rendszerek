@@ -45,16 +45,11 @@ public class App extends Application {
         MenuItem userPage = new MenuItem("Saját adatok");
         MenuItem addBook = new MenuItem("Könyv felvétele");
         MenuItem addPublisher = new MenuItem("Kiadó felvétele");
-        MenuItem deletePublisher = new MenuItem("Kiadó törlése");
-        MenuItem updatePublisher = new MenuItem("Kiadó adatainak frissítése");
         MenuItem listPublisher = new MenuItem("Kiadók listázása");
         MenuItem addShop = new MenuItem("Áruház felvétele");
-        MenuItem deleteShop = new MenuItem("Áruház törlése");
-        MenuItem updateShop = new MenuItem("Áruház adatainak frissítése");
         MenuItem listShop = new MenuItem("Áruházak listázása");
-        MenuItem addCoupon = new MenuItem("Új kupon");
-        MenuItem deleteCoupon = new MenuItem("Kupon törlése");
-        MenuItem modifyCoupon = new MenuItem("Kupon módosítása");
+        MenuItem addCoupon = new MenuItem("Kupon felvétele");
+        MenuItem listCoupon = new MenuItem("Kuponok listázása");
 
         addUser.setOnAction(e -> new AddUserDialog(userController));
         loginUser.setOnAction(e -> new LoginUserDialog(userController));
@@ -62,30 +57,27 @@ public class App extends Application {
         logoutUser.setOnAction(e -> sessionController.logout());
 
         addPublisher.setOnAction(e -> new AddPublisherDialog(publisherController));
-        deletePublisher.setOnAction(e -> new DeletePublisherDialog(publisherController));
-        updatePublisher.setOnAction(e -> new UpdatePublisherDialog(publisherController));
         listPublisher.setOnAction(e -> new ListPublisherDialog(publisherController));
 
         addShop.setOnAction(e -> new AddShopDialog(shopController));
-        deleteShop.setOnAction(e -> new DeleteShopDialog(shopController));
-        updateShop.setOnAction(e -> new UpdateShopDialog(shopController));
         listShop.setOnAction(e -> new ListShopDialog(shopController));
 
         addCoupon.setOnAction(e -> new AddCouponDialog(couponController));
-        deleteCoupon.setOnAction(e -> new DeleteCouponDialog(couponController));
-        modifyCoupon.setOnAction(e -> new ModifyCouponDialog(couponController));
+        listCoupon.setOnAction(e -> new ListCouponDialog(couponController));
 
         addUser.visibleProperty().bind(sessionController.isLoggedIn().not());
         loginUser.visibleProperty().bind(sessionController.isLoggedIn().not());
         userPage.visibleProperty().bind(sessionController.isLoggedIn());
         logoutUser.visibleProperty().bind(sessionController.isLoggedIn());
-
+        publisherMenu.disableProperty().bind(sessionController.isAdmin().not());
+        shopMenu.disableProperty().bind(sessionController.isAdmin().not());
+        couponMenu.disableProperty().bind(sessionController.isAdmin().not());
 
         userMenu.getItems().addAll(addUser, loginUser, userPage, logoutUser);
         bookMenu.getItems().addAll(addBook);
-        publisherMenu.getItems().addAll(addPublisher,deletePublisher, updatePublisher, listPublisher);
-        shopMenu.getItems().addAll(addShop, deleteShop, updateShop, listShop);
-        couponMenu.getItems().addAll(addCoupon, deleteCoupon, modifyCoupon);
+        publisherMenu.getItems().addAll(addPublisher, listPublisher);
+        shopMenu.getItems().addAll(addShop, listShop);
+        couponMenu.getItems().addAll(addCoupon, listCoupon);
 
         return menuBar;
     }

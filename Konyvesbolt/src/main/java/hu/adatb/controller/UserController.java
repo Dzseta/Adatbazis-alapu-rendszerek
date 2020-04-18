@@ -30,4 +30,8 @@ public class UserController {
     public boolean modifyUser(User user, String email){
         return dao.modifyUser(user, email);
     }
+
+    public boolean isAdmin(String email){
+        return dao.isAdmin(email);
+    }
 }

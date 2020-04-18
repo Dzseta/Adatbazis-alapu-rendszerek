@@ -56,7 +56,7 @@ public class LoginUserDialog extends Stage {
             user.setPassword(Encoder.GetMD5(passwordField.getText()));
             if(controller.login(user)){
                 user = controller.getUser(user.getEmail());
-                sessionController.login(user);
+                sessionController.login(user, controller.isAdmin(user.getEmail()));
                 close();
             } else {
                 Utils.showWarning("Sikertelen bejelentkezés!");

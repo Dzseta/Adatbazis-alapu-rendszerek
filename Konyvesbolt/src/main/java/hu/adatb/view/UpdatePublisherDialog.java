@@ -16,10 +16,17 @@ import javafx.stage.Stage;
 
 public class UpdatePublisherDialog extends Stage {
 
-    PublisherController controller;
+    private PublisherController controller;
+    private ListPublisherDialog parent;
 
-    public UpdatePublisherDialog(PublisherController controller){
+    private Publisher publisher;
+    private String oldName;
+
+    public UpdatePublisherDialog(PublisherController controller, Publisher publisher, ListPublisherDialog parent){
         this.controller = controller;
+        this.parent = parent;
+        this.publisher = publisher;
+        oldName = publisher.getName();
         construct();
     }
 
@@ -30,32 +37,30 @@ public class UpdatePublisherDialog extends Stage {
         grid.setPadding(new Insets(10));
 
         TextField nameField = new TextField();
+        nameField.setText(publisher.getName());
         TextField zipcodeField = new TextField();
+        zipcodeField.setText(String.valueOf(publisher.getZipcode()));
         TextField cityField = new TextField();
+        cityField.setText(publisher.getCity());
         TextField streetField = new TextField();
+        streetField.setText(publisher.getStreet());
         TextField hnumberField = new TextField();
-        TextField oldNameField = new TextField();
+        hnumberField.setText(publisher.getHnumber());
 
         grid.add(new Text("Kiadó neve:"), 0, 0);
-        grid.add(oldNameField, 1, 0);
-        grid.add(new Text("Kiadó új neve:"), 0, 1);
-        grid.add(nameField, 1 , 1);
-        grid.add(new Text("Új irányítószám:"), 0, 2);
-        grid.add(zipcodeField, 1, 2);
-        grid.add(new Text("Új város:"), 0, 3);
-        grid.add(cityField, 1, 3);
-        grid.add(new Text("Új utca:"), 0, 4);
-        grid.add(streetField, 1, 4);
-        grid.add(new Text("Új házszám:"), 0, 5);
-        grid.add(hnumberField, 1, 5);
+        grid.add(nameField, 1, 0);
+        grid.add(new Text("Irányítószám:"), 0, 1);
+        grid.add(zipcodeField, 1, 1);
+        grid.add(new Text("Város:"), 0, 2);
+        grid.add(cityField, 1, 2);
+        grid.add(new Text("Utca:"), 0, 3);
+        grid.add(streetField, 1, 3);
+        grid.add(new Text("Házszám:"), 0, 4);
+        grid.add(hnumberField, 1, 4);
 
-        Button okButton = new Button("Kiadó frissítése");
+        Button okButton = new Button("Módosítás");
         okButton.setDefaultButton(true);
         okButton.setOnAction(e -> {
-            if(oldNameField.getText().contentEquals("")){
-                Utils.showWarning("A név nem lehet üres!");
-                return;
-            }
             if(nameField.getText().contentEquals("")){
                 Utils.showWarning("Az új név nem lehet üres!");
                 return;
@@ -85,7 +90,14 @@ public class UpdatePublisherDialog extends Stage {
                 return;
             }
 
-            if(controller.update(new Publisher(nameField.getText(), zipcode, cityField.getText(), streetField.getText(), hnumberField.getText()), oldNameField.getText())){
+            publisher.setName(nameField.getText());
+            publisher.setZipcode(zipcode);
+            publisher.setCity(cityField.getText());
+            publisher.setStreet(streetField.getText());
+            publisher.setHnumber(hnumberField.getText());
+
+            if(controller.update(publisher, oldName)){
+                parent.refreshTable();
                 close();
             } else {
                 Utils.showWarning("Nem sikerült a kiadó frissítése!");
@@ -106,7 +118,7 @@ public class UpdatePublisherDialog extends Stage {
         buttonPane.setAlignment(Pos.CENTER);
         buttonPane.getChildren().addAll(okButton, cancelButton);
 
-        grid.add(buttonPane, 0, 9, 2, 1);
+        grid.add(buttonPane, 0, 5, 2, 1);
 
         Scene scene = new Scene(grid);
         setScene(scene);

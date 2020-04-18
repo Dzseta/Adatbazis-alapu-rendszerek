@@ -60,7 +60,7 @@ public class UserDataDialog extends Stage {
 
         TextField streetField = new TextField();
         streetField.setDisable(true);
-        streetField.setText(user.getCity());
+        streetField.setText(user.getStreet());
 
         TextField houseField = new TextField();
         houseField.setDisable(true);

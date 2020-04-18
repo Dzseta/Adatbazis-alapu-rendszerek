@@ -7,6 +7,8 @@ import oracle.jdbc.proxy.annotation.Pre;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CouponDAOImpl implements CouponDAO {
     private Connection conn;
@@ -17,7 +19,7 @@ public class CouponDAOImpl implements CouponDAO {
 
     private static final String MODIFY_COUPON_STR = "UPDATE KUPONOK SET KOD = ?, KEDVEZMENY = ?, MUFAJ = ? WHERE KOD = ? ";
 
-    private static final String GET_COUPON_STR = "SELECT * FROM KUPONOK WHERE KOD = ? ";
+    private static final String GET_COUPON_STR = "SELECT * FROM KUPONOK ";
 
     public void initialize(){
         conn = DBController.connect();
@@ -83,24 +85,24 @@ public class CouponDAOImpl implements CouponDAO {
     }
 
     @Override
-    public Coupon getCoupon(String code) {
-        Coupon coupon = new Coupon();
+    public List<Coupon> list() {
+        List<Coupon> coupons = new ArrayList<>();
 
         try (PreparedStatement st = conn.prepareStatement(GET_COUPON_STR)){
-            st.setString(1, code);
-
             ResultSet rs = st.executeQuery();
 
-            if(rs.next()){
+            while(rs.next()){
+                Coupon coupon = new Coupon();
                 coupon.setCode(rs.getString("KOD"));
                 coupon.setDiscount(rs.getInt("KEDVEZMENY"));
                 coupon.setGenre(rs.getString("MUFAJ"));
+                coupons.add(coupon);
             }
 
         } catch (Exception e){
             e.printStackTrace();
         }
 
-        return coupon;
+        return coupons;
     }
 }

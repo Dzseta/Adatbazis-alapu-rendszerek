@@ -9,6 +9,7 @@ public class SessionController {
 
     private User user;
     private BooleanProperty loggedIn = new SimpleBooleanProperty(false);
+    private BooleanProperty admin = new SimpleBooleanProperty(false);
 
     public static SessionController getInstance(){
         if(sessionController == null){
@@ -21,18 +22,24 @@ public class SessionController {
 
     }
 
-    public void login(User user){
+    public void login(User user, boolean isAdmin){
         this.user = user;
         loggedIn.setValue(true);
+        admin.setValue(isAdmin);
     }
 
     public void logout(){
-        user = null;
+        admin.setValue(false);
         loggedIn.setValue(false);
+        user = null;
     }
 
     public BooleanProperty isLoggedIn(){
         return loggedIn;
+    }
+
+    public BooleanProperty isAdmin(){
+        return admin;
     }
 
     public User getUser(){

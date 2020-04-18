@@ -17,9 +17,16 @@ import javafx.stage.Stage;
 
 public class ModifyCouponDialog extends Stage {
     private CouponController controller;
+    private ListCouponDialog parent;
 
-    public ModifyCouponDialog(CouponController controller){
+    private Coupon coupon;
+    private String oldCode;
+
+    public ModifyCouponDialog(CouponController controller, Coupon coupon, ListCouponDialog parent){
         this.controller = controller;
+        this.coupon = coupon;
+        this.parent = parent;
+        oldCode = coupon.getCode();
         construct();
     }
 
@@ -29,23 +36,23 @@ public class ModifyCouponDialog extends Stage {
         grid.setHgap(10);
         grid.setPadding(new Insets(10));
 
-        TextField oldCodeField = new TextField();
-        TextField newCodeField = new TextField();
-        Spinner<Integer> discountSpinner= new Spinner(0, 100, 0);
-        TextField genreField = new TextField();
 
-        grid.add(new Text("Kupon jelenlegi kódja:"), 0, 0);
-        grid.add(oldCodeField, 1, 0);
-        grid.add(new Text("Kupon új kódja:"), 0, 1);
-        grid.add(newCodeField, 1, 1);
-        grid.add(new Text("Kedvezmény mértéke:"),0, 2);
-        grid.add(discountSpinner, 1, 2);
-        grid.add(new Text("Műfaj:"), 0, 3);
-        grid.add(genreField, 1, 3);
+        TextField newCodeField = new TextField();
+        newCodeField.setText(coupon.getCode());
+        Spinner<Integer> discountSpinner= new Spinner(0, 100, coupon.getDiscount());
+        TextField genreField = new TextField();
+        genreField.setText(coupon.getGenre());
+
+        grid.add(new Text("Kupon kódja:"), 0, 0);
+        grid.add(newCodeField, 1, 0);
+        grid.add(new Text("Kedvezmény mértéke:"),0, 1);
+        grid.add(discountSpinner, 1, 1);
+        grid.add(new Text("Műfaj:"), 0, 2);
+        grid.add(genreField, 1, 2);
 
         Button okButton = new Button("Módosítás");
         okButton.setOnAction(e -> {
-            if(newCodeField.getText().contentEquals("") || oldCodeField.getText().contentEquals("")){
+            if(newCodeField.getText().contentEquals("")){
                 Utils.showWarning("A kód nem lehet üres!");
                 return;
             }
@@ -54,8 +61,12 @@ public class ModifyCouponDialog extends Stage {
                 return;
             }
 
-            if(controller.modifyCoupon(new Coupon(newCodeField.getText(), discountSpinner.getValue(), genreField.getText()),
-                    oldCodeField.getText())){
+            coupon.setCode(newCodeField.getText());
+            coupon.setDiscount(discountSpinner.getValue());
+            coupon.setGenre(genreField.getText());
+
+            if(controller.modifyCoupon(coupon, oldCode)){
+                parent.refreshTable();
                 close();
             } else {
                 Utils.showWarning("Nem sikerült a módosítás!");
@@ -75,7 +86,7 @@ public class ModifyCouponDialog extends Stage {
         buttonPane.setAlignment(Pos.CENTER);
         buttonPane.getChildren().addAll(okButton, cancelButton);
 
-        grid.add(buttonPane, 0, 4, 2, 1);
+        grid.add(buttonPane, 0, 3, 2, 1);
 
         Scene scene = new Scene(grid);
         setScene(scene);

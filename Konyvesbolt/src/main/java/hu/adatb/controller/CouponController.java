@@ -4,6 +4,8 @@ import hu.adatb.dao.CouponDAO;
 import hu.adatb.dao.CouponDAOImpl;
 import hu.adatb.model.Coupon;
 
+import java.util.List;
+
 public class CouponController {
     private CouponDAO dao = new CouponDAOImpl();
 
@@ -23,7 +25,7 @@ public class CouponController {
         return dao.modifyCoupon(coupon, code);
     }
 
-    public Coupon getCoupon(String code){
-        return dao.getCoupon(code);
+    public List<Coupon> list(){
+        return dao.list();
     }
 }

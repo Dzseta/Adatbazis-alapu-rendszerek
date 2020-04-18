@@ -16,10 +16,17 @@ import javafx.stage.Stage;
 
 public class UpdateShopDialog extends Stage {
 
-    ShopController controller;
+    private ShopController controller;
+    private ListShopDialog parent;
 
-    public UpdateShopDialog(ShopController controller){
+    private Shop shop;
+    private int oldId;
+
+    public UpdateShopDialog(ShopController controller, Shop shop, ListShopDialog parent){
         this.controller = controller;
+        this.parent = parent;
+        this.shop = shop;
+        oldId = shop.getId();
         construct();
     }
 
@@ -30,35 +37,34 @@ public class UpdateShopDialog extends Stage {
         grid.setPadding(new Insets(10));
 
         TextField nameField = new TextField();
+        nameField.setText(shop.getName());
         TextField idField = new TextField();
+        idField.setText(String.valueOf(shop.getId()));
         TextField zipcodeField = new TextField();
+        zipcodeField.setText(String.valueOf(shop.getZipcode()));
         TextField cityField = new TextField();
+        cityField.setText(shop.getCity());
         TextField streetField = new TextField();
+        streetField.setText(shop.getStreet());
         TextField hnumberField = new TextField();
-        TextField oldIdField = new TextField();
+        hnumberField.setText(shop.getHnumber());
 
         grid.add(new Text("Áruház azonosítója:"), 0, 0);
-        grid.add(oldIdField, 1, 0);
-        grid.add(new Text("Áruház új neve:"), 0, 1);
+        grid.add(idField, 1, 0);
+        grid.add(new Text("Áruház Neve:"), 0, 1);
         grid.add(nameField, 1 , 1);
-        grid.add(new Text("Áruház új azonosítója:"), 0, 2);
-        grid.add(idField, 1, 2);
-        grid.add(new Text("Új irányítószám:"), 0, 3);
-        grid.add(zipcodeField, 1, 3);
-        grid.add(new Text("Új város:"), 0, 4);
-        grid.add(cityField, 1, 4);
-        grid.add(new Text("Új utca:"), 0, 5);
-        grid.add(streetField, 1, 5);
-        grid.add(new Text("Új házszám:"), 0, 6);
-        grid.add(hnumberField, 1, 6);
+        grid.add(new Text("Irányítószám:"), 0, 2);
+        grid.add(zipcodeField, 1, 2);
+        grid.add(new Text("Város:"), 0, 3);
+        grid.add(cityField, 1, 3);
+        grid.add(new Text("Utca:"), 0, 4);
+        grid.add(streetField, 1, 4);
+        grid.add(new Text("Házszám:"), 0, 5);
+        grid.add(hnumberField, 1, 5);
 
-        Button okButton = new Button("Áruház adatainak frissítése");
+        Button okButton = new Button("Módosítás");
         okButton.setDefaultButton(true);
         okButton.setOnAction(e -> {
-            if(oldIdField.getText().contentEquals("")){
-                Utils.showWarning("Az azonosító nem lehet üres!");
-                return;
-            }
             if(idField.getText().contentEquals("")){
                 Utils.showWarning("Az új azonosító nem lehet üres!");
                 return;
@@ -98,15 +104,16 @@ public class UpdateShopDialog extends Stage {
                 Utils.showWarning("Az új azonosító nem szám!");
                 return;
             }
-            int oldId;
-            try{
-                oldId = Integer.parseInt(oldIdField.getText());
-            } catch (Exception ex){
-                Utils.showWarning("Az azonosító nem szám!");
-                return;
-            }
 
-            if(controller.update(new Shop(id, zipcode, cityField.getText(), streetField.getText(), hnumberField.getText(), nameField.getText()), oldId)){
+            shop.setName(nameField.getText());
+            shop.setId(id);
+            shop.setZipcode(zipcode);
+            shop.setCity(cityField.getText());
+            shop.setStreet(streetField.getText());
+            shop.setHnumber(hnumberField.getText());
+
+            if(controller.update(shop, oldId)){
+                parent.refreshTable();
                 close();
             } else {
                 Utils.showWarning("Nem sikerült az áruház frissítése!");
