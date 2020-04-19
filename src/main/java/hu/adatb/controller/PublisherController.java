@@ -4,6 +4,8 @@ import hu.adatb.dao.PublisherDAO;
 import hu.adatb.dao.PublisherDAOImpl;
 import hu.adatb.model.Publisher;
 
+import java.util.List;
+
 public class PublisherController {
     private PublisherDAO dao = new PublisherDAOImpl();
 
@@ -21,7 +23,7 @@ public class PublisherController {
 
     public boolean update(Publisher publisher, String oldName) { return dao.update(publisher, oldName); }
 
-    public boolean list(){
+    public List<Publisher> list(){
         return dao.list();
     }
 }

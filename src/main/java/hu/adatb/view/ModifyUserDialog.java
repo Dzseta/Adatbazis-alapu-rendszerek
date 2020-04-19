@@ -1,5 +1,6 @@
 package hu.adatb.view;
 
+import hu.adatb.controller.SessionController;
 import hu.adatb.controller.UserController;
 import hu.adatb.model.User;
 import hu.adatb.util.Utils;
@@ -19,11 +20,16 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 
-public class AddUserDialog extends Stage {
+public class ModifyUserDialog extends Stage {
     private UserController controller;
+    private User user;
+    private UserDataDialog parent;
+    private String emailBefore;
 
-    public AddUserDialog(UserController controller){
+    public ModifyUserDialog(UserController controller, User user, UserDataDialog parent){
         this.controller = controller;
+        this.user = user;
+        this.parent = parent;
         construct();
     }
 
@@ -34,14 +40,23 @@ public class AddUserDialog extends Stage {
         grid.setPadding(new Insets(10));
 
         TextField vnevField = new TextField();
+        vnevField.setText(user.getVnev());
         TextField knevField = new TextField();
+        knevField.setText(user.getKnev());
         TextField emailField = new TextField();
+        emailField.setText(user.getEmail());
+        emailBefore = user.getEmail();
         TextField passwordField = new TextField();
         TextField irszField = new TextField();
+        irszField.setText(String.valueOf(user.getIrsz()));
         TextField cityField = new TextField();
+        cityField.setText(user.getCity());
         TextField streetField = new TextField();
+        streetField.setText(user.getStreet());
         TextField houseField = new TextField();
+        houseField.setText(user.getHouse());
         DatePicker datePicker = new DatePicker();
+        datePicker.setValue(Utils.toLocalDate(user.getDate().toString()));
 
         grid.add(new Text("Vezetéknév:"), 0, 0);
         grid.add(vnevField, 1 , 0);
@@ -62,7 +77,7 @@ public class AddUserDialog extends Stage {
         grid.add(new Text("Születési dátum:"), 0, 8);
         grid.add(datePicker, 1, 8);
 
-        Button okButton = new Button("Regisztráció");
+        Button okButton = new Button("Módosítás");
         okButton.setDefaultButton(true);
         okButton.setOnAction(e -> {
             if(vnevField.getText().contentEquals("")){
@@ -116,11 +131,21 @@ public class AddUserDialog extends Stage {
             Instant instant = Instant.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()));
             Date date = Date.from(instant);
 
-            if(controller.addUser(new User(vnevField.getText(), knevField.getText(), emailField.getText(), passwordField.getText(),
-                    irsz, cityField.getText(), streetField.getText(), houseField.getText(), date))){
+            user.setVnev(vnevField.getText());
+            user.setKnev(knevField.getText());
+            user.setPassword(passwordField.getText());
+            user.setEmail(emailField.getText());
+            user.setIrsz(irsz);
+            user.setCity(cityField.getText());
+            user.setStreet(streetField.getText());
+            user.setHouse(houseField.getText());
+            user.setDate(date);
+
+            if(controller.modifyUser(user, emailBefore)){
+                parent.userModified();
                 close();
             } else {
-                Utils.showWarning("Nem sikerült a regisztráció!");
+                Utils.showWarning("Nem sikerült a módosítás!");
                 return;
             }
 
@@ -142,7 +167,7 @@ public class AddUserDialog extends Stage {
 
         Scene scene = new Scene(grid);
         setScene(scene);
-        setTitle("Regisztráció");
+        setTitle("Adatok Módosítása");
         show();
     }
 }

@@ -9,13 +9,29 @@ public class UserController {
 
     public UserController(){
 
-    };
+    }
 
-    public boolean add(User user){
-        return dao.add(user);
+    public boolean addUser(User user){
+        return dao.addUser(user);
     }
 
     public boolean login(User user){
         return dao.login(user);
+    }
+
+    public User getUser(String email){
+        return dao.getUser(email);
+    }
+
+    public boolean deleteUSer(String email){
+        return dao.deleteUser(email);
+    }
+
+    public boolean modifyUser(User user, String email){
+        return dao.modifyUser(user, email);
+    }
+
+    public boolean isAdmin(String email){
+        return dao.isAdmin(email);
     }
 }

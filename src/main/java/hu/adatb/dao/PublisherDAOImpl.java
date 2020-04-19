@@ -7,6 +7,8 @@ import hu.adatb.model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Flow;
 
 public class PublisherDAOImpl implements PublisherDAO {
@@ -90,19 +92,30 @@ public class PublisherDAOImpl implements PublisherDAO {
     }
 
     @Override
-    public boolean list() {
+    public List<Publisher> list() {
+        List<Publisher> publishers = new ArrayList<>();
+
         try (PreparedStatement st = conn.prepareStatement(LIST_PUBLISHER_STR)){
+            ResultSet rs = st.executeQuery();
 
-            int res = st.executeUpdate();
+            while(rs.next()){
+                Publisher publisher = new Publisher();
+                publisher.setName(rs.getString("NEV"));
+                publisher.setZipcode(rs.getInt("IRANYITOSZAM"));
+                publisher.setCity(rs.getString("VAROS"));
+                publisher.setStreet(rs.getString("UTCA"));
+                publisher.setHnumber(rs.getString("HAZSZAM"));
 
-            if(res == 1){
-                return true;
+                publishers.add(publisher);
             }
+
 
         } catch (Exception e){
             e.printStackTrace();
         }
-        return false;
+
+        return publishers;
+
     }
 
 }

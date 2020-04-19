@@ -4,6 +4,8 @@ import hu.adatb.dao.ShopDAO;
 import hu.adatb.dao.ShopDAOImpl;
 import hu.adatb.model.Shop;
 
+import java.util.List;
+
 public class ShopController {
 
     private ShopDAO dao = new ShopDAOImpl();
@@ -22,7 +24,7 @@ public class ShopController {
 
     public boolean update(Shop shop, int oldId) { return dao.update(shop, oldId); }
 
-    public boolean list(){
+    public List<Shop> list(){
         return dao.list();
     }
 }

@@ -5,6 +5,9 @@ import hu.adatb.model.Shop;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShopDAOImpl implements ShopDAO {
 
@@ -89,18 +92,29 @@ public class ShopDAOImpl implements ShopDAO {
     }
 
     @Override
-    public boolean list() {
+    public List<Shop> list() {
+        List<Shop> shops = new ArrayList<>();
+
         try (PreparedStatement st = conn.prepareStatement(LIST_SHOP_STR)){
+            ResultSet rs = st.executeQuery();
 
-            int res = st.executeUpdate();
+            while(rs.next()){
+                Shop shop = new Shop();
+                shop.setId(rs.getInt("AZONOSITO"));
+                shop.setZipcode(rs.getInt("IRANYITOSZAM"));
+                shop.setCity(rs.getString("VAROS"));
+                shop.setStreet(rs.getString("UTCA"));
+                shop.setHnumber(rs.getString("HAZSZAM"));
+                shop.setName(rs.getString("NEV"));
 
-            if(res == 1){
-                return true;
+                shops.add(shop);
             }
+
 
         } catch (Exception e){
             e.printStackTrace();
         }
-        return false;
+
+        return shops;
     }
 }
