@@ -10,9 +10,9 @@ public class GenreController {
 
     private GenreDAO dao = new GenreDAOImpl();
 
-    public GenreController(){ };
+    public GenreController(){ }
 
-    public boolean foreignKey(Genre genre) { return dao.foreignKey(genre); };
+    public boolean foreignKey(Genre genre) { return dao.foreignKey(genre); }
 
     public boolean add(Genre genre){
         return dao.add(genre);
@@ -26,5 +26,9 @@ public class GenreController {
 
     public List<Genre> list(){
         return dao.list();
+    }
+
+    public List<Genre> getSelectedGenre(int isbn){
+        return dao.getSelectedGenre(isbn);
     }
 }

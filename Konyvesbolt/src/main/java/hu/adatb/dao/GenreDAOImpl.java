@@ -1,6 +1,7 @@
 package hu.adatb.dao;
 
 import hu.adatb.controller.DBController;
+import hu.adatb.model.Author;
 import hu.adatb.model.Genre;
 
 import java.sql.Connection;
@@ -15,11 +16,13 @@ public class GenreDAOImpl implements GenreDAO{
 
     private static final String ADD_MUFAJOK_STR = "INSERT INTO MUFAJOK VALUES (?,?) ";
 
-    private static final String DELETE_MUFAJOK_STR = "DELETE FROM MUFAJOK WHERE ISBN=?, MUFAJ=? ";
+    private static final String DELETE_MUFAJOK_STR = "DELETE FROM MUFAJOK WHERE ISBN=? AND MUFAJ=? ";
 
-    private static final String UPDATE_MUFAJOK_STR = "UPDATE MUFAJOK SET mufaj=?,isbn=? WHERE MUFAJ=?, ISBN=? ";
+    private static final String UPDATE_MUFAJOK_STR = "UPDATE MUFAJOK SET mufaj=?,isbn=? WHERE MUFAJ=? AND ISBN=? ";
 
     private static final String LIST_MUFAJOK_STR = "SELECT * FROM MUFAJOK ";
+
+    private static final String GET_MUFAJ_STR = "SELECT * FROM MUFAJOK WHERE ISBN=? ";
 
     private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK WHERE ISBN=? ";
 
@@ -70,8 +73,8 @@ public class GenreDAOImpl implements GenreDAO{
     @Override
     public boolean delete(Genre genre) {
         try (PreparedStatement st = conn.prepareStatement(DELETE_MUFAJOK_STR)){
-            st.setString(1, genre.getName());
-            st.setInt(2, genre.getIsbn());
+            st.setInt(1, genre.getIsbn());
+            st.setString(2, genre.getName());
 
             int res = st.executeUpdate();
 
@@ -114,7 +117,7 @@ public class GenreDAOImpl implements GenreDAO{
 
             while(rs.next()){
                 Genre genre = new Genre();
-                genre.setName(rs.getString("MŰFAJ"));
+                genre.setName(rs.getString("MUFAJ"));
                 genre.setIsbn(rs.getInt("ISBN"));
 
                 genres.add(genre);
@@ -125,5 +128,29 @@ public class GenreDAOImpl implements GenreDAO{
         }
 
         return genres;
+    }
+
+    @Override
+    public List<Genre> getSelectedGenre(int isbn) {
+        List<Genre> list = new ArrayList<>();
+
+        try (PreparedStatement st = conn.prepareStatement(GET_MUFAJ_STR)){
+            st.setInt(1, isbn);
+
+            ResultSet rs = st.executeQuery();
+
+            while(rs.next()){
+                Genre genre = new Genre();
+                genre.setName((rs.getString("MUFAJ")));
+                genre.setIsbn(isbn);
+
+                list.add(genre);
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }

@@ -1,9 +1,15 @@
 package hu.adatb.view;
 
+import hu.adatb.controller.OrderController;
+import hu.adatb.controller.SessionController;
 import hu.adatb.model.Book;
+import hu.adatb.model.Order;
+import hu.adatb.model.User;
+import hu.adatb.util.Utils;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
@@ -21,6 +27,9 @@ public class ShoppingCart extends Stage {
 
     private static ShoppingCart cart;
 
+    private OrderController orderController;
+    private SessionController sessionController;
+
     private BorderPane contents;
 
     public static ShoppingCart getInstance(){
@@ -32,6 +41,8 @@ public class ShoppingCart extends Stage {
 
     private ShoppingCart() {
         books = new ArrayList<>();
+        orderController = new OrderController();
+        sessionController = SessionController.getInstance();
         construct();
     }
 
@@ -46,6 +57,33 @@ public class ShoppingCart extends Stage {
         contents = new BorderPane();
 
         Button orderButton = new Button("Megrendel");
+        orderButton.setOnAction(e -> {
+            User user = sessionController.getUser();
+            GridPane grid = (GridPane) contents.getCenter();
+            int bookNo = 0;
+            for(Node n: grid.getChildren()){
+                int amount = 1;
+                if(n instanceof Spinner) {
+                    amount = (int) ((Spinner) n).getValue();
+
+                    Order order = new Order();
+                    order.setEmail(user.getEmail());
+                    order.setIsbn(books.get(bookNo).getIsbn());
+                    order.setQuantity(amount);
+                    order.setLocation(user.getIrsz() + " " + user.getCity() + " " + user.getStreet() + " " + user.getHouse());
+                    if (orderController.add(order)) {
+                        bookNo++;
+                    } else {
+                        Utils.showWarning("Nem sikerült a rendelés!");
+                        return;
+                    }
+                }
+
+            }
+            books.clear();
+            refreshContents();
+            close();
+        });
         Button cancelButton = new Button("Mégse");
         cancelButton.setOnAction(e -> close());
 

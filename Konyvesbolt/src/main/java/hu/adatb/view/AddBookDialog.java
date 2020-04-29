@@ -2,9 +2,11 @@ package hu.adatb.view;
 
 import hu.adatb.controller.AuthorController;
 import hu.adatb.controller.BookController;
+import hu.adatb.controller.GenreController;
 import hu.adatb.controller.PublisherController;
 import hu.adatb.model.Author;
 import hu.adatb.model.Book;
+import hu.adatb.model.Genre;
 import hu.adatb.model.Publisher;
 import hu.adatb.util.Utils;
 import javafx.collections.FXCollections;
@@ -29,11 +31,13 @@ public class AddBookDialog extends Stage {
     private BookController controller;
     private PublisherController publisherController;
     private AuthorController authorController;
+    private GenreController genreController;
 
-    public AddBookDialog(BookController controller, PublisherController publisherController, AuthorController authorController){
+    public AddBookDialog(BookController controller, PublisherController publisherController, AuthorController authorController, GenreController genreController){
         this.controller = controller;
         this.publisherController = publisherController;
         this.authorController = authorController;
+        this.genreController = genreController;
         construct();
     }
 
@@ -46,6 +50,7 @@ public class AddBookDialog extends Stage {
         TextField isbnField = new TextField();
         TextField titleField = new TextField();
         TextField authorsField = new TextField();
+        TextField genreField = new TextField();
         TextField publishedField = new TextField();
         ComboBox<String> publisherField = new ComboBox<>(listPublishers());
         TextField pagesField = new TextField();
@@ -59,18 +64,20 @@ public class AddBookDialog extends Stage {
         grid.add(titleField, 1, 1);
         grid.add(new Text("Szerző(k):"), 0, 2);
         grid.add(authorsField, 1, 2);
-        grid.add(new Text("Kiadás éve:"), 0, 3);
-        grid.add(publishedField, 1, 3);
-        grid.add(new Text("Kiadó:"), 0, 4);
-        grid.add(publisherField, 1, 4);
-        grid.add(new Text("Oldalszám:"), 0, 5);
-        grid.add(pagesField, 1, 5);
-        grid.add(new Text("Borító kötése:"), 0, 6);
-        grid.add(coverField, 1, 6);
-        grid.add(new Text("Méret:"), 0, 7);
-        grid.add(sizeField, 1, 7);
-        grid.add(new Text("Ár (Forint):"), 0, 8);
-        grid.add(priceField, 1, 8);
+        grid.add(new Text("Műfaj(ok):"), 0, 3);
+        grid.add(genreField, 1, 3);
+        grid.add(new Text("Kiadás éve:"), 0, 4);
+        grid.add(publishedField, 1, 4);
+        grid.add(new Text("Kiadó:"), 0, 5);
+        grid.add(publisherField, 1, 5);
+        grid.add(new Text("Oldalszám:"), 0, 6);
+        grid.add(pagesField, 1, 6);
+        grid.add(new Text("Borító kötése:"), 0, 7);
+        grid.add(coverField, 1, 7);
+        grid.add(new Text("Méret:"), 0, 8);
+        grid.add(sizeField, 1, 8);
+        grid.add(new Text("Ár (Forint):"), 0, 9);
+        grid.add(priceField, 1, 9);
 
         Button okButton = new Button("Könyv felvitele");
         okButton.setDefaultButton(true);
@@ -85,6 +92,10 @@ public class AddBookDialog extends Stage {
             }
             if(authorsField.getText().contentEquals("")){
                 Utils.showWarning("A szerző nem lehet üres!");
+                return;
+            }
+            if(genreField.getText().contentEquals("")){
+                Utils.showWarning("A műfaj nem lehet üres!");
                 return;
             }
             if(publishedField.getText().contentEquals("")){
@@ -165,6 +176,15 @@ public class AddBookDialog extends Stage {
                         return;
                     }
                 }
+
+                String[] genres = genreField.getText().split(",");
+                for(String g: genres){
+                    String str = g.strip();
+                    if(!genreController.add(new Genre(str, isbn))){
+                        Utils.showWarning("Nem sikerült a műfaj hozzáadása!");
+                        return;
+                    }
+                }
                 close();
             } else {
                 Utils.showWarning("Nem sikerült a könyv felvétele!");
@@ -185,7 +205,7 @@ public class AddBookDialog extends Stage {
         buttonPane.setAlignment(Pos.CENTER);
         buttonPane.getChildren().addAll(okButton, cancelButton);
 
-        grid.add(buttonPane, 0, 9, 2, 1);
+        grid.add(buttonPane, 0, 10, 2, 1);
 
         Scene scene = new Scene(grid);
         setScene(scene);

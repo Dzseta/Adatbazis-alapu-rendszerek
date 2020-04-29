@@ -2,9 +2,11 @@ package hu.adatb.view;
 
 import hu.adatb.controller.AuthorController;
 import hu.adatb.controller.BookController;
+import hu.adatb.controller.GenreController;
 import hu.adatb.controller.PublisherController;
 import hu.adatb.model.Author;
 import hu.adatb.model.Book;
+import hu.adatb.model.Genre;
 import hu.adatb.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -25,13 +27,15 @@ public class ListBookDialog extends Stage {
     private BookController controller;
     private PublisherController publisherController;
     private AuthorController authorController;
+    private GenreController genreController;
 
     private TableView<Book> table;
 
-    public ListBookDialog(BookController controller, PublisherController publisherController, AuthorController authorController){
+    public ListBookDialog(BookController controller, PublisherController publisherController, AuthorController authorController, GenreController genreController){
         this.controller = controller;
         this.publisherController = publisherController;
         this.authorController = authorController;
+        this.genreController = genreController;
         construct();
     }
 
@@ -111,6 +115,9 @@ public class ListBookDialog extends Stage {
             for(Author a: authorController.getSelectedAuthors(book.getIsbn())){
                 authorController.delete(a);
             }
+            for(Genre g: genreController.getSelectedGenre(book.getIsbn())){
+                genreController.delete(g);
+            }
             controller.delete(book);
             refreshTable();
         }
@@ -119,7 +126,7 @@ public class ListBookDialog extends Stage {
     public void modifyItem(){
         Book book = table.getSelectionModel().getSelectedItem();
         if(book != null){
-            UpdateBookDialog dialog = new UpdateBookDialog(controller, book, this, publisherController, authorController);
+            UpdateBookDialog dialog = new UpdateBookDialog(controller, book, this, publisherController, authorController, genreController);
         }
     }
 }

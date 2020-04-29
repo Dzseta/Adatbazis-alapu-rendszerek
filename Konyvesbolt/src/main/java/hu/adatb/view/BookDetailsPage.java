@@ -1,9 +1,11 @@
 package hu.adatb.view;
 
 import hu.adatb.controller.AuthorController;
+import hu.adatb.controller.GenreController;
 import hu.adatb.controller.SessionController;
 import hu.adatb.model.Author;
 import hu.adatb.model.Book;
+import hu.adatb.model.Genre;
 import hu.adatb.util.Utils;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -18,14 +20,16 @@ import javafx.stage.Stage;
 
 public class BookDetailsPage extends Stage {
     private AuthorController authorController;
+    private GenreController genreController;
 
     private ShoppingCart shoppingCart;
     private SessionController sessionController;
 
     private Book book;
 
-    public BookDetailsPage(AuthorController authorController, Book book) {
+    public BookDetailsPage(AuthorController authorController, Book book, GenreController genreController) {
         this.authorController = authorController;
+        this.genreController = genreController;
         this.book = book;
         shoppingCart = ShoppingCart.getInstance();
         sessionController = SessionController.getInstance();
@@ -46,18 +50,27 @@ public class BookDetailsPage extends Stage {
         StringBuilder builder = new StringBuilder();
         for(Author a: authorController.getSelectedAuthors(book.getIsbn())){
             builder.append(a.getName());
-            builder.append(",");
+            builder.append(", ");
         }
-        builder.deleteCharAt(builder.length() - 1);
+        builder.delete(builder.length() - 2, builder.length() - 1);
 
         Text authors = new Text("Szerző(k): " + builder.toString());
+
+        builder = new StringBuilder();
+        for(Genre g: genreController.getSelectedGenre(book.getIsbn())){
+            builder.append(g.getName());
+            builder.append(", ");
+        }
+        builder.delete(builder.length() - 2, builder.length() - 1);
+
+
         Text published = new Text(book.getPublished() + ", ");
         Text publisher = new Text(book.getPublisher());
         Text pages = new Text(book.getPages() + " oldal, ");
         Text cover = new Text(book.getCover());
         Text size = new Text(book.getSize());
         Text price = new Text(book.getPrice() + " Ft");
-        Text genre = new Text("Minta műfaj");
+        Text genre = new Text(builder.toString());
 
         grid.add(isbn, 0, 0);
         grid.add(title, 1, 0);

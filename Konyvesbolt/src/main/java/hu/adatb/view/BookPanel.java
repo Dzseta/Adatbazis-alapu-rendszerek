@@ -1,6 +1,7 @@
 package hu.adatb.view;
 
 import hu.adatb.controller.AuthorController;
+import hu.adatb.controller.GenreController;
 import hu.adatb.model.Author;
 import hu.adatb.model.Book;
 import javafx.geometry.Insets;
@@ -12,10 +13,12 @@ import javafx.scene.text.Text;
 public class BookPanel extends GridPane {
     private Book book;
     private AuthorController authorController;
+    private GenreController genreController;
 
-    public BookPanel(Book book, AuthorController authorController) {
+    public BookPanel(Book book, AuthorController authorController, GenreController genreController) {
         this.book = book;
         this.authorController = authorController;
+        this.genreController = genreController;
         construct();
     }
 
@@ -40,13 +43,13 @@ public class BookPanel extends GridPane {
             builder.append(a.getName());
             builder.append(",");
         }
-        builder.deleteCharAt(builder.length() - 1);
+        builder.delete(builder.length() - 2, builder.length() - 1);
 
         Text authors = new Text("Szerző(k): " + builder.toString());
         Text price = new Text(String.valueOf(book.getPrice()) + " Ft");
 
         Button detailsButton = new Button("Részletek");
-        detailsButton.setOnAction(e -> new BookDetailsPage(authorController, book));
+        detailsButton.setOnAction(e -> new BookDetailsPage(authorController, book, genreController));
 
         add(title, 0, 0);
         add(price, 1, 0);

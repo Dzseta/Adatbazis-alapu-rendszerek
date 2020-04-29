@@ -21,4 +21,8 @@ public class OrderController {
     public List<Order> list(){
         return dao.list();
     }
+
+    public boolean delete(Order order){
+        return dao.delete(order);
+    }
 }

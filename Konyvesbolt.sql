@@ -78,6 +78,7 @@ CREATE TABLE felhasznalok (
     utca VARCHAR2(100),
     hazszam VARCHAR2(10),
     szuldatum DATE,
+    admin NUMBER(1),
     CONSTRAINT FELHASZNALOK_PRIMARY_KEY PRIMARY KEY(email)
 );
 

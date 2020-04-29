@@ -74,7 +74,7 @@ public class App extends Application {
         Menu orderMenu = new Menu("Rendelések");
         Menu seriesMenu = new Menu("Könyvsorozatok");
 
-        menuBar.getMenus().addAll(userMenu, bookMenu, publisherMenu, shopMenu, couponMenu, genreMenu, stockMenu, orderMenu, seriesMenu);
+        menuBar.getMenus().addAll(userMenu, orderMenu, bookMenu, publisherMenu, shopMenu, couponMenu, genreMenu, stockMenu, seriesMenu);
 
         MenuItem addUser = new MenuItem("Regisztráció");
         MenuItem loginUser = new MenuItem("Bejelentkezés");
@@ -89,11 +89,9 @@ public class App extends Application {
         MenuItem listShop = new MenuItem("Áruházak listázása");
         MenuItem addCoupon = new MenuItem("Kupon felvétele");
         MenuItem listCoupon = new MenuItem("Kuponok listázása");
-        MenuItem addGenre = new MenuItem("Műfaj felvétele");
         MenuItem listGenre = new MenuItem("Műfajok listázása");
         MenuItem addStock = new MenuItem("Könyv felvétele a raktárba");
         MenuItem listStock = new MenuItem("Raktár tartalmának listázása");
-        MenuItem addOrder = new MenuItem("Rendelés felvétele");
         MenuItem listOrder = new MenuItem("Rendelések listázása");
         MenuItem addSeries = new MenuItem("Könyvsorozat felvétele");
         MenuItem listSeries = new MenuItem("Könyvsorozatok listázása");
@@ -104,8 +102,8 @@ public class App extends Application {
         cartMenu.setOnAction(e -> shoppingCart.show());
         logoutUser.setOnAction(e -> sessionController.logout());
 
-        addBook.setOnAction(e -> new AddBookDialog(bookController, publisherController, authorController));
-        listBook.setOnAction(e -> new ListBookDialog(bookController, publisherController, authorController));
+        addBook.setOnAction(e -> new AddBookDialog(bookController, publisherController, authorController, genreController));
+        listBook.setOnAction(e -> new ListBookDialog(bookController, publisherController, authorController, genreController));
 
         addPublisher.setOnAction(e -> new AddPublisherDialog(publisherController));
         listPublisher.setOnAction(e -> new ListPublisherDialog(publisherController));
@@ -116,14 +114,12 @@ public class App extends Application {
         addCoupon.setOnAction(e -> new AddCouponDialog(couponController));
         listCoupon.setOnAction(e -> new ListCouponDialog(couponController));
 
-        addGenre.setOnAction(e -> new AddGenreDialog(genreController));
-        //listGenre.setOnAction(e -> new ListGenreDialog(genreController));
+        listGenre.setOnAction(e -> new ListGenreDialog(genreController));
 
         //addStock.setOnAction(e -> new AddStockDialog(stockController));
         //.setOnAction(e -> new ListStockDialog(stockController));
 
-        //addOrder.setOnAction(e -> new AddOrderDialog(orderController));
-        //listOrder.setOnAction(e -> new ListOrderDialog(orderController));
+        listOrder.setOnAction(e -> new ListOrderDialog(orderController));
 
         //addSeries.setOnAction(e -> new AddSeriesDialog(seriesController));
         //listSeries.setOnAction(e -> new ListSeriesDialog(seriesController));
@@ -141,8 +137,7 @@ public class App extends Application {
         genreMenu.disableProperty().bind(sessionController.isAdmin().not());
         stockMenu.disableProperty().bind(sessionController.isAdmin().not());
         orderMenu.disableProperty().bind(sessionController.isLoggedIn().not());
-        addOrder.visibleProperty().bind(sessionController.isLoggedIn());
-        listOrder.visibleProperty().bind(sessionController.isAdmin());
+        listOrder.visibleProperty().bind(sessionController.isLoggedIn());
         seriesMenu.disableProperty().bind(sessionController.isAdmin().not());
 
         userMenu.getItems().addAll(addUser, loginUser, cartMenu, userPage, logoutUser);
@@ -150,9 +145,9 @@ public class App extends Application {
         publisherMenu.getItems().addAll(addPublisher, listPublisher);
         shopMenu.getItems().addAll(addShop, listShop);
         couponMenu.getItems().addAll(addCoupon, listCoupon);
-        genreMenu.getItems().addAll(addGenre, listGenre);
+        genreMenu.getItems().addAll(listGenre);
         stockMenu.getItems().addAll(addStock, listStock);
-        orderMenu.getItems().addAll(addOrder, listOrder);
+        orderMenu.getItems().addAll(listOrder);
         seriesMenu.getItems().addAll(addSeries, listSeries);
 
         return menuBar;
@@ -163,7 +158,7 @@ public class App extends Application {
         panels.setOrientation(Orientation.HORIZONTAL);
         panels.prefWidthProperty().bind(stage.widthProperty());
         for(Book b: bookController.list()){
-            BookPanel panel = new BookPanel(b, authorController);
+            BookPanel panel = new BookPanel(b, authorController, genreController);
             panel.prefWidthProperty().bind(stage.widthProperty().subtract(20).divide(3));
             panels.getChildren().add(panel);
         }

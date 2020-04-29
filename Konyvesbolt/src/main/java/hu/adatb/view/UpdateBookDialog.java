@@ -2,9 +2,11 @@ package hu.adatb.view;
 
 import hu.adatb.controller.AuthorController;
 import hu.adatb.controller.BookController;
+import hu.adatb.controller.GenreController;
 import hu.adatb.controller.PublisherController;
 import hu.adatb.model.Author;
 import hu.adatb.model.Book;
+import hu.adatb.model.Genre;
 import hu.adatb.model.Publisher;
 import hu.adatb.util.Utils;
 import javafx.collections.FXCollections;
@@ -30,14 +32,16 @@ public class UpdateBookDialog extends Stage {
     private ListBookDialog parent;
     private PublisherController publisherController;
     private AuthorController authorController;
+    private GenreController genreController;
 
     private Book book;
     private int oldIsbn;
 
-    public UpdateBookDialog(BookController controller, Book book, ListBookDialog parent, PublisherController publisherController, AuthorController authorController){
+    public UpdateBookDialog(BookController controller, Book book, ListBookDialog parent, PublisherController publisherController, AuthorController authorController, GenreController genreController){
         this.controller = controller;
         this.publisherController = publisherController;
         this.authorController = authorController;
+        this.genreController = genreController;
         this.parent = parent;
         this.book = book;
         oldIsbn = book.getIsbn();
@@ -53,6 +57,7 @@ public class UpdateBookDialog extends Stage {
         TextField isbnField = new TextField();
         TextField titleField = new TextField();
         TextField authorsField = new TextField();
+        TextField genreField = new TextField();
         TextField publishedField = new TextField();
         ComboBox<String> publisherField = new ComboBox<>(listPublishers());
         TextField pagesField = new TextField();
@@ -63,14 +68,22 @@ public class UpdateBookDialog extends Stage {
         isbnField.setText(String.valueOf(book.getIsbn()));
         titleField.setText(book.getTitle());
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder authorBuilder = new StringBuilder();
         for(Author a: authorController.getSelectedAuthors(oldIsbn)){
-            builder.append(a.getName());
-            builder.append(",");
+            authorBuilder.append(a.getName());
+            authorBuilder.append(",");
         }
-        builder.deleteCharAt(builder.length() - 1);
+        authorBuilder.deleteCharAt(authorBuilder.length() - 1);
 
-        authorsField.setText(builder.toString());
+        StringBuilder genreBuilder = new StringBuilder();
+        for(Genre g: genreController.getSelectedGenre(oldIsbn)){
+            genreBuilder.append(g.getName());
+            genreBuilder.append(",");
+        }
+        genreBuilder.deleteCharAt(genreBuilder.length() - 1);
+
+        authorsField.setText(authorBuilder.toString());
+        genreField.setText(genreBuilder.toString());
         publishedField.setText(String.valueOf(book.getPublished()));
         publisherField.getSelectionModel().select(book.getPublisher());
         pagesField.setText(String.valueOf(book.getPages()));
@@ -84,18 +97,20 @@ public class UpdateBookDialog extends Stage {
         grid.add(titleField, 1, 1);
         grid.add(new Text("Szerző(k):"), 0, 2);
         grid.add(authorsField, 1, 2);
-        grid.add(new Text("Kiadás éve:"), 0, 3);
-        grid.add(publishedField, 1, 3);
-        grid.add(new Text("Kiadó:"), 0, 4);
-        grid.add(publisherField, 1, 4);
-        grid.add(new Text("Oldalszám:"), 0, 5);
-        grid.add(pagesField, 1, 5);
-        grid.add(new Text("Borító kötése:"), 0, 6);
-        grid.add(coverField, 1, 6);
-        grid.add(new Text("Méret:"), 0, 7);
-        grid.add(sizeField, 1, 7);
-        grid.add(new Text("Ár (Forint):"), 0, 8);
-        grid.add(priceField, 1, 8);
+        grid.add(new Text("Műfaj(ok):"), 0, 3);
+        grid.add(genreField, 1, 3);
+        grid.add(new Text("Kiadás éve:"), 0, 4);
+        grid.add(publishedField, 1, 4);
+        grid.add(new Text("Kiadó:"), 0, 5);
+        grid.add(publisherField, 1, 5);
+        grid.add(new Text("Oldalszám:"), 0, 6);
+        grid.add(pagesField, 1, 6);
+        grid.add(new Text("Borító kötése:"), 0, 7);
+        grid.add(coverField, 1, 7);
+        grid.add(new Text("Méret:"), 0, 8);
+        grid.add(sizeField, 1, 8);
+        grid.add(new Text("Ár (Forint):"), 0, 9);
+        grid.add(priceField, 1, 9);
 
         Button okButton = new Button("Módosítás");
         okButton.setDefaultButton(true);
@@ -114,6 +129,10 @@ public class UpdateBookDialog extends Stage {
             }
             if(publishedField.getText().contentEquals("")){
                 Utils.showWarning("A kiadási év nem lehet üres!");
+                return;
+            }
+            if(genreField.getText().contentEquals("")){
+                Utils.showWarning("A műfaj nem lehet üres!");
                 return;
             }
             if(publisherField.getSelectionModel().isEmpty()){
@@ -192,21 +211,39 @@ public class UpdateBookDialog extends Stage {
 
             if(controller.update(book, oldIsbn)){
                 String[] authors = authorsField.getText().split(",");
-                String[] oldAuthors = builder.toString().split(",");
+                String[] oldAuthors = authorBuilder.toString().split(",");
                 for(int i=0; i<oldAuthors.length; i++){
                     String oldName = oldAuthors[i].strip();
                     if(!authorController.delete(new Author(oldName, oldIsbn))){
-                        Utils.showWarning("Nem sikerült a szerzők felvétele!");
+                        Utils.showWarning("Nem sikerült a szerzők frissítése!");
                         return;
                     }
                 }
                 for(int i=0; i<authors.length; i++){
                     String name = authors[i].strip();
                     if(!authorController.add(new Author(name, isbn))){
-                        Utils.showWarning("Nem sikerült a szerzők felvétele!");
+                        Utils.showWarning("Nem sikerült a szerzők frissítése!");
                         return;
                     }
                 }
+
+                String[] genres = genreField.getText().split(",");
+                String[] oldGenres = genreBuilder.toString().split(",");
+                for(int i=0; i<oldGenres.length; i++){
+                    String oldName = oldGenres[i].strip();
+                    if(!genreController.delete(new Genre(oldName, oldIsbn))){
+                        Utils.showWarning("Nem sikerült a műfajok frissítése!");
+                        return;
+                    }
+                }
+                for(int i=0; i<genres.length; i++){
+                    String name = genres[i].strip();
+                    if(!genreController.add(new Genre(name, isbn))){
+                        Utils.showWarning("Nem sikerült a műfajok frissítése!");
+                        return;
+                    }
+                }
+
                 parent.refreshTable();
                 close();
             } else {
@@ -228,7 +265,7 @@ public class UpdateBookDialog extends Stage {
         buttonPane.setAlignment(Pos.CENTER);
         buttonPane.getChildren().addAll(okButton, cancelButton);
 
-        grid.add(buttonPane, 0, 9, 2, 1);
+        grid.add(buttonPane, 0, 10, 2, 1);
 
         Scene scene = new Scene(grid);
         setScene(scene);
