@@ -1,12 +1,20 @@
 package hu.adatb;
 
 import hu.adatb.controller.*;
+import hu.adatb.model.Book;
+import hu.adatb.model.Shop;
 import hu.adatb.view.*;
 import javafx.application.Application;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -24,11 +32,30 @@ public class App extends Application {
     private OrderController orderController = new OrderController();
     private SeriesController seriesController = new SeriesController();
     private AuthorController authorController = new AuthorController();
+
     private SessionController sessionController = SessionController.getInstance();
+    private ShoppingCart shoppingCart = ShoppingCart.getInstance();
+
+    private FlowPane books;
+    private BorderPane contents;
 
     @Override
     public void start(Stage stage) {
         VBox root = new VBox(createMenuBar(stage));
+
+        contents = new BorderPane();
+        contents.prefHeightProperty().bind(stage.heightProperty());
+        contents.prefWidthProperty().bind(stage.widthProperty());
+        books = createBookPanels(stage);
+
+        Button refreshButton = new Button("Frissítés");
+        refreshButton.setOnAction(e ->refreshContents(stage));
+
+        contents.setCenter(books);
+        contents.setBottom(refreshButton);
+        BorderPane.setAlignment(refreshButton, Pos.CENTER);
+
+        root.getChildren().add(contents);
 
         Scene scene = new Scene(root, 960, 520);
         stage.setScene(scene);
@@ -53,6 +80,7 @@ public class App extends Application {
         MenuItem loginUser = new MenuItem("Bejelentkezés");
         MenuItem logoutUser = new MenuItem("Kijelentkezés");
         MenuItem userPage = new MenuItem("Saját adatok");
+        MenuItem cartMenu = new MenuItem("Bevásárlókosár");
         MenuItem addBook = new MenuItem("Könyv felvétele");
         MenuItem listBook = new MenuItem("Könyvek listázása");
         MenuItem addPublisher = new MenuItem("Kiadó felvétele");
@@ -69,12 +97,11 @@ public class App extends Application {
         MenuItem listOrder = new MenuItem("Rendelések listázása");
         MenuItem addSeries = new MenuItem("Könyvsorozat felvétele");
         MenuItem listSeries = new MenuItem("Könyvsorozatok listázása");
-        MenuItem addAuthor = new MenuItem("Szerző felvétele");
-        MenuItem listAuthor = new MenuItem("Kuponok listázása");
 
         addUser.setOnAction(e -> new AddUserDialog(userController));
         loginUser.setOnAction(e -> new LoginUserDialog(userController));
         userPage.setOnAction(e -> new UserDataDialog(userController));
+        cartMenu.setOnAction(e -> shoppingCart.show());
         logoutUser.setOnAction(e -> sessionController.logout());
 
         addBook.setOnAction(e -> new AddBookDialog(bookController, publisherController, authorController));
@@ -104,6 +131,7 @@ public class App extends Application {
 
         addUser.visibleProperty().bind(sessionController.isLoggedIn().not());
         loginUser.visibleProperty().bind(sessionController.isLoggedIn().not());
+        cartMenu.visibleProperty().bind(sessionController.isLoggedIn());
         userPage.visibleProperty().bind(sessionController.isLoggedIn());
         logoutUser.visibleProperty().bind(sessionController.isLoggedIn());
         publisherMenu.disableProperty().bind(sessionController.isAdmin().not());
@@ -117,7 +145,7 @@ public class App extends Application {
         listOrder.visibleProperty().bind(sessionController.isAdmin());
         seriesMenu.disableProperty().bind(sessionController.isAdmin().not());
 
-        userMenu.getItems().addAll(addUser, loginUser, userPage, logoutUser);
+        userMenu.getItems().addAll(addUser, loginUser, cartMenu, userPage, logoutUser);
         bookMenu.getItems().addAll(addBook, listBook);
         publisherMenu.getItems().addAll(addPublisher, listPublisher);
         shopMenu.getItems().addAll(addShop, listShop);
@@ -128,6 +156,24 @@ public class App extends Application {
         seriesMenu.getItems().addAll(addSeries, listSeries);
 
         return menuBar;
+    }
+
+    private FlowPane createBookPanels(Stage stage){
+        FlowPane panels = new FlowPane();
+        panels.setOrientation(Orientation.HORIZONTAL);
+        panels.prefWidthProperty().bind(stage.widthProperty());
+        for(Book b: bookController.list()){
+            BookPanel panel = new BookPanel(b, authorController);
+            panel.prefWidthProperty().bind(stage.widthProperty().subtract(20).divide(3));
+            panels.getChildren().add(panel);
+        }
+        return panels;
+    }
+
+    public void refreshContents(Stage stage){
+        contents.getChildren().remove(books);
+        books = createBookPanels(stage);
+        contents.setCenter(books);
     }
 
     public static void main(String[] args) {

@@ -38,6 +38,10 @@ public class SessionController {
         return loggedIn;
     }
 
+    public boolean userLoggedIn(){
+        return loggedIn.get();
+    }
+
     public BooleanProperty isAdmin(){
         return admin;
     }
