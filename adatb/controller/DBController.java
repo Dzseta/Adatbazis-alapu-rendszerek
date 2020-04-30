@@ -12,7 +12,7 @@ public class DBController {
             OracleDataSource ods = new OracleDataSource();
             Class.forName ("oracle.jdbc.OracleDriver");
             ods.setURL("jdbc:oracle:thin:@localhost:1521:xe");
-            conn = ods.getConnection("Konyvesbolt","test");
+            conn = ods.getConnection("test","test");
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }

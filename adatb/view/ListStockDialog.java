@@ -1,7 +1,9 @@
 package hu.adatb.view;
 
-import hu.adatb.controller.PublisherController;
-import hu.adatb.model.Publisher;
+import hu.adatb.controller.BookController;
+import hu.adatb.controller.ShopController;
+import hu.adatb.controller.StockController;
+import hu.adatb.model.Stock;
 import hu.adatb.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -11,22 +13,23 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.util.List;
 
-public class ListPublisherDialog extends Stage {
+public class ListStockDialog extends Stage {
+    private StockController controller;
+    private BookController bookController;
+    private ShopController shopController;
 
-    private PublisherController controller;
+    private TableView<Stock> table;
 
-    private TableView<Publisher> table;
-
-    public ListPublisherDialog(PublisherController controller){
+    public ListStockDialog(StockController controller, BookController bookController, ShopController shopController){
         this.controller = controller;
+        this.bookController = bookController;
+        this.shopController = shopController;
         construct();
     }
 
@@ -60,52 +63,49 @@ public class ListPublisherDialog extends Stage {
         buttonPane.setOrientation(Orientation.HORIZONTAL);
         buttonPane.setHgap(15);
         buttonPane.setAlignment(Pos.CENTER);
-        buttonPane.getChildren().addAll(okButton, modifyButton,deleteButton,cancelButton);
+        buttonPane.getChildren().addAll(okButton, modifyButton, deleteButton, cancelButton);
 
         grid.add(buttonPane, 0, 1, 2, 1);
 
         Scene scene = new Scene(grid);
         setScene(scene);
-        setTitle("Kiadók");
+        setTitle("Raktárak");
         show();
     }
 
     public void initializeTable(){
         table = new TableView<>();
-        TableColumn<Publisher, String> nameCol = new TableColumn<>("Név");
-        TableColumn<Publisher, String> zipcodeCol = new TableColumn<>("Irányítószám");
-        TableColumn<Publisher, String> cityCol = new TableColumn<>("Város");
-        TableColumn<Publisher, String> streetCol = new TableColumn<>("Utca");
-        TableColumn<Publisher, String> houseCol = new TableColumn<>("Házszám");
+        TableColumn<Stock, String> isbnCol = new TableColumn<>("ISBN");
+        TableColumn<Stock, String> idCol = new TableColumn<>("Áruház azonosító");
+        TableColumn<Stock, String> countCol = new TableColumn<>("Darabszám");
 
-        nameCol.setCellValueFactory(data -> data.getValue().nameProperty());
-        zipcodeCol.setCellValueFactory(data -> data.getValue().zipcodeProperty().asString());
-        cityCol.setCellValueFactory(data -> data.getValue().cityProperty());
-        streetCol.setCellValueFactory(data -> data.getValue().streetProperty());
-        houseCol.setCellValueFactory(data -> data.getValue().hnumberProperty());
+        isbnCol.setCellValueFactory(data -> data.getValue().isbnProperty().asString());
+        idCol.setCellValueFactory(data -> data.getValue().idProperty().asString());
+        countCol.setCellValueFactory(data -> data.getValue().quantityProperty().asString());
 
-        table.getColumns().addAll(nameCol, zipcodeCol, cityCol, streetCol, houseCol);
-        List<Publisher> list = controller.list();
+        table.getColumns().addAll(isbnCol, idCol, countCol);
+        List<Stock> list = controller.list();
         table.setItems(FXCollections.observableList(list));
+
     }
 
     public void refreshTable(){
-        List<Publisher> list = controller.list();
+        List<Stock> list = controller.list();
         table.setItems(FXCollections.observableList(list));
     }
 
     public void deleteItem(){
-        Publisher publisher = table.getSelectionModel().getSelectedItem();
-        if(publisher != null && Utils.showConfirmation("Biztos, hogy törli a kijelölt elemet?")){
-            controller.delete(publisher);
+        Stock stock = table.getSelectionModel().getSelectedItem();
+        if(stock != null && Utils.showConfirmation("Biztos, hogy törli a kijelölt elemet?")){
+            controller.delete(stock);
             refreshTable();
         }
     }
 
     public void modifyItem(){
-        Publisher publisher = table.getSelectionModel().getSelectedItem();
-        if(publisher != null){
-            UpdatePublisherDialog dialog = new UpdatePublisherDialog(controller, publisher, this);
+        Stock stock = table.getSelectionModel().getSelectedItem();
+        if(stock != null) {
+            ModifyStockDialog dialog = new ModifyStockDialog(controller, bookController, shopController, stock, this);
         }
     }
 }

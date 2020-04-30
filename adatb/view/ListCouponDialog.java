@@ -1,7 +1,7 @@
 package hu.adatb.view;
 
-import hu.adatb.controller.PublisherController;
-import hu.adatb.model.Publisher;
+import hu.adatb.controller.CouponController;
+import hu.adatb.model.Coupon;
 import hu.adatb.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -11,21 +11,18 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.util.List;
 
-public class ListPublisherDialog extends Stage {
+public class ListCouponDialog extends Stage {
+    private CouponController controller;
 
-    private PublisherController controller;
+    private TableView<Coupon> table;
 
-    private TableView<Publisher> table;
-
-    public ListPublisherDialog(PublisherController controller){
+    public ListCouponDialog(CouponController controller){
         this.controller = controller;
         construct();
     }
@@ -60,52 +57,49 @@ public class ListPublisherDialog extends Stage {
         buttonPane.setOrientation(Orientation.HORIZONTAL);
         buttonPane.setHgap(15);
         buttonPane.setAlignment(Pos.CENTER);
-        buttonPane.getChildren().addAll(okButton, modifyButton,deleteButton,cancelButton);
+        buttonPane.getChildren().addAll(okButton, modifyButton, deleteButton, cancelButton);
 
         grid.add(buttonPane, 0, 1, 2, 1);
 
         Scene scene = new Scene(grid);
         setScene(scene);
-        setTitle("Kiadók");
+        setTitle("Kuponok");
         show();
     }
 
     public void initializeTable(){
         table = new TableView<>();
-        TableColumn<Publisher, String> nameCol = new TableColumn<>("Név");
-        TableColumn<Publisher, String> zipcodeCol = new TableColumn<>("Irányítószám");
-        TableColumn<Publisher, String> cityCol = new TableColumn<>("Város");
-        TableColumn<Publisher, String> streetCol = new TableColumn<>("Utca");
-        TableColumn<Publisher, String> houseCol = new TableColumn<>("Házszám");
+        TableColumn<Coupon, String> codeCol = new TableColumn<>("Kód");
+        TableColumn<Coupon, String> discountCol = new TableColumn<>("Kedvezmény mértéke");
+        TableColumn<Coupon, String> genreCol = new TableColumn<>("Műfaj");
 
-        nameCol.setCellValueFactory(data -> data.getValue().nameProperty());
-        zipcodeCol.setCellValueFactory(data -> data.getValue().zipcodeProperty().asString());
-        cityCol.setCellValueFactory(data -> data.getValue().cityProperty());
-        streetCol.setCellValueFactory(data -> data.getValue().streetProperty());
-        houseCol.setCellValueFactory(data -> data.getValue().hnumberProperty());
+        codeCol.setCellValueFactory(data -> data.getValue().codeProperty());
+        discountCol.setCellValueFactory(data -> data.getValue().discountProperty().asString());
+        genreCol.setCellValueFactory(data -> data.getValue().genreProperty());
 
-        table.getColumns().addAll(nameCol, zipcodeCol, cityCol, streetCol, houseCol);
-        List<Publisher> list = controller.list();
+        table.getColumns().addAll(codeCol, discountCol, genreCol);
+        List<Coupon> list = controller.list();
         table.setItems(FXCollections.observableList(list));
+
     }
 
     public void refreshTable(){
-        List<Publisher> list = controller.list();
+        List<Coupon> list = controller.list();
         table.setItems(FXCollections.observableList(list));
     }
 
     public void deleteItem(){
-        Publisher publisher = table.getSelectionModel().getSelectedItem();
-        if(publisher != null && Utils.showConfirmation("Biztos, hogy törli a kijelölt elemet?")){
-            controller.delete(publisher);
+        Coupon coupon = table.getSelectionModel().getSelectedItem();
+        if(coupon != null && Utils.showConfirmation("Biztos, hogy törli a kijelölt elemet?")){
+            controller.deleteCoupon(coupon.getCode());
             refreshTable();
         }
     }
 
     public void modifyItem(){
-        Publisher publisher = table.getSelectionModel().getSelectedItem();
-        if(publisher != null){
-            UpdatePublisherDialog dialog = new UpdatePublisherDialog(controller, publisher, this);
+        Coupon coupon = table.getSelectionModel().getSelectedItem();
+        if(coupon != null) {
+            ModifyCouponDialog dialog = new ModifyCouponDialog(controller, coupon, this);
         }
     }
 }
