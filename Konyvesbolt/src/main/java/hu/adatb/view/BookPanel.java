@@ -41,7 +41,7 @@ public class BookPanel extends GridPane {
         StringBuilder builder = new StringBuilder();
         for(Author a: authorController.getSelectedAuthors(book.getIsbn())){
             builder.append(a.getName());
-            builder.append(",");
+            builder.append(", ");
         }
         builder.delete(builder.length() - 2, builder.length() - 1);
 
