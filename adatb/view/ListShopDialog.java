@@ -1,31 +1,27 @@
 package hu.adatb.view;
 
-import hu.adatb.controller.PublisherController;
-import hu.adatb.model.Publisher;
+import hu.adatb.controller.ShopController;
+import hu.adatb.model.Shop;
 import hu.adatb.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.util.List;
 
-public class ListPublisherDialog extends Stage {
+public class ListShopDialog extends Stage {
 
-    private PublisherController controller;
+    private ShopController controller;
 
-    private TableView<Publisher> table;
+    private TableView<Shop> table;
 
-    public ListPublisherDialog(PublisherController controller){
+    public ListShopDialog(ShopController controller){
         this.controller = controller;
         construct();
     }
@@ -60,52 +56,55 @@ public class ListPublisherDialog extends Stage {
         buttonPane.setOrientation(Orientation.HORIZONTAL);
         buttonPane.setHgap(15);
         buttonPane.setAlignment(Pos.CENTER);
-        buttonPane.getChildren().addAll(okButton, modifyButton,deleteButton,cancelButton);
+        buttonPane.getChildren().addAll(okButton, modifyButton, deleteButton, cancelButton);
 
         grid.add(buttonPane, 0, 1, 2, 1);
 
         Scene scene = new Scene(grid);
         setScene(scene);
-        setTitle("Kiadók");
+        setTitle("Áruházak");
         show();
     }
 
     public void initializeTable(){
         table = new TableView<>();
-        TableColumn<Publisher, String> nameCol = new TableColumn<>("Név");
-        TableColumn<Publisher, String> zipcodeCol = new TableColumn<>("Irányítószám");
-        TableColumn<Publisher, String> cityCol = new TableColumn<>("Város");
-        TableColumn<Publisher, String> streetCol = new TableColumn<>("Utca");
-        TableColumn<Publisher, String> houseCol = new TableColumn<>("Házszám");
+        TableColumn<Shop, String> idCol = new TableColumn<>("Azonosító");
+        TableColumn<Shop, String> nameCol = new TableColumn<>("Név");
+        TableColumn<Shop, String> zipcodeCol = new TableColumn<>("Irányítószám");
+        TableColumn<Shop, String> cityCol = new TableColumn<>("Város");
+        TableColumn<Shop, String> streetCol = new TableColumn<>("Utca");
+        TableColumn<Shop, String> houseCol = new TableColumn<>("Házszám");
 
+        idCol.setCellValueFactory(data -> data.getValue().idProperty().asString());
         nameCol.setCellValueFactory(data -> data.getValue().nameProperty());
         zipcodeCol.setCellValueFactory(data -> data.getValue().zipcodeProperty().asString());
         cityCol.setCellValueFactory(data -> data.getValue().cityProperty());
         streetCol.setCellValueFactory(data -> data.getValue().streetProperty());
         houseCol.setCellValueFactory(data -> data.getValue().hnumberProperty());
 
-        table.getColumns().addAll(nameCol, zipcodeCol, cityCol, streetCol, houseCol);
-        List<Publisher> list = controller.list();
+        table.getColumns().addAll(idCol, nameCol, zipcodeCol, cityCol, streetCol, houseCol);
+        List<Shop> list = controller.list();
         table.setItems(FXCollections.observableList(list));
+
     }
 
     public void refreshTable(){
-        List<Publisher> list = controller.list();
+        List<Shop> list = controller.list();
         table.setItems(FXCollections.observableList(list));
     }
 
     public void deleteItem(){
-        Publisher publisher = table.getSelectionModel().getSelectedItem();
-        if(publisher != null && Utils.showConfirmation("Biztos, hogy törli a kijelölt elemet?")){
-            controller.delete(publisher);
+        Shop shop = table.getSelectionModel().getSelectedItem();
+        if(shop != null && Utils.showConfirmation("Biztos, hogy törli a kijelölt elemet?")){
+            controller.delete(shop);
             refreshTable();
         }
     }
 
     public void modifyItem(){
-        Publisher publisher = table.getSelectionModel().getSelectedItem();
-        if(publisher != null){
-            UpdatePublisherDialog dialog = new UpdatePublisherDialog(controller, publisher, this);
+        Shop shop = table.getSelectionModel().getSelectedItem();
+        if(shop != null){
+            UpdateShopDialog dialog = new UpdateShopDialog(controller, shop, this);
         }
     }
 }
