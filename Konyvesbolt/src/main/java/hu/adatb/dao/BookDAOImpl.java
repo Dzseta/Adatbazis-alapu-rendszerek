@@ -2,14 +2,8 @@ package hu.adatb.dao;
 
 import hu.adatb.controller.DBController;
 import hu.adatb.model.Book;
-import hu.adatb.model.Publisher;
-import hu.adatb.util.Utils;
 
-import java.io.Console;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +19,15 @@ public class BookDAOImpl implements BookDAO{
 
     private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK ";
 
+    private static final String GET_KONYV_STR = "SELECT * FROM KONYVEK WHERE ISBN=? ";
+
     private static final String LIST_KIADOK_STR = "SELECT * FROM KIADO WHERE NEV=? ";
+
+    private static final String LIST_BOOKS_STR = "SELECT DISTINCT KONYVEK.ISBN, CIM, KIADAS, KIADONEV, OLDALSZAM, KOTES, MERET, AR " +
+            "FROM KONYVEK, SZERZOK, MUFAJOK WHERE KONYVEK.ISBN = SZERZOK.ISBN " +
+            "AND KONYVEK.ISBN = MUFAJOK.ISBN ";
+
+    private static final String GET_SIMILAR_STR = "{? = call GET_SIMILAR(?)} ";
 
     public void initialize(){
         conn = DBController.connect();
@@ -129,5 +131,107 @@ public class BookDAOImpl implements BookDAO{
         }
 
         return books;
+    }
+
+    @Override
+    public Book getSelectedBook(int isbn) {
+        Book book = new Book();
+
+        try (PreparedStatement st = conn.prepareStatement(GET_KONYV_STR)){
+            st.setInt(1, isbn);
+
+            ResultSet rs = st.executeQuery();
+
+            while(rs.next()){
+                book.setIsbn(rs.getInt("ISBN"));
+                book.setTitle(rs.getString("CIM"));
+                book.setPublished(rs.getInt("KIADAS"));
+                book.setPublisher(rs.getString("KIADONEV"));
+                book.setPages(rs.getInt("OLDALSZAM"));
+                book.setCover(rs.getString("KOTES"));
+                book.setSize(rs.getString("MERET"));
+                book.setPrice(rs.getInt("AR"));
+
+            }
+
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return book;
+    }
+
+    @Override
+    public List<Book> getSelectedBooks(String title, String author, String genre) {
+        List<Book> list = new ArrayList<>();
+
+        String localStr = LIST_BOOKS_STR;
+        if(!title.isEmpty()){
+            localStr += "AND CIM=? ";
+        }
+        if(!author.isEmpty()){
+            localStr += "AND NEV=? ";
+        }
+        if(!genre.isEmpty()){
+            localStr += "AND MUFAJ=? ";
+        }
+
+
+        try (PreparedStatement st = conn.prepareStatement(localStr)){
+            int args = 1;
+            if(!title.isEmpty()){
+                st.setString(args++, title);
+            }
+            if(!author.isEmpty()){
+                st.setString(args++, author);
+            }
+            if(!genre.isEmpty()){
+                st.setString(args, genre);
+            }
+
+            ResultSet rs = st.executeQuery();
+
+            while(rs.next()){
+                Book book = new Book();
+                book.setIsbn(rs.getInt("ISBN"));
+                book.setTitle(rs.getString("CIM"));
+                book.setPublished(rs.getInt("KIADAS"));
+                book.setPublisher(rs.getString("KIADONEV"));
+                book.setPages(rs.getInt("OLDALSZAM"));
+                book.setCover(rs.getString("KOTES"));
+                book.setSize(rs.getString("MERET"));
+                book.setPrice(rs.getInt("AR"));
+
+                list.add(book);
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    @Override
+    public Book getSimilar(int isbn) {
+
+        try (CallableStatement st = conn.prepareCall(GET_SIMILAR_STR)){
+            st.registerOutParameter(1, Types.INTEGER);
+            st.setInt(2, isbn);
+            st.execute();
+
+            int bookIsbn = st.getInt(1);
+
+            if(bookIsbn > -1 ){
+                return getSelectedBook(bookIsbn);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

@@ -18,7 +18,7 @@ public class SeriesDAOImpl implements SeriesDAO{
 
     private static final String DELETE_SOROZAT_STR = "DELETE FROM SOROZAT WHERE NEV=? ";
 
-    private static final String UPDATE_SOROZAT_STR = "UPDATE SOROZAT SET nev=?,isbn=? WHERE NEV=? ";
+    private static final String UPDATE_SOROZAT_STR = "UPDATE SOROZAT SET nev=?,isbn=? WHERE NEV=? AND ISBN =? ";
 
     private static final String LIST_SOROZAT_STR = "SELECT * FROM SOROZAT ";
 
@@ -86,11 +86,12 @@ public class SeriesDAOImpl implements SeriesDAO{
     }
 
     @Override
-    public boolean update(Series series, String oldName) {
+    public boolean update(Series series, String oldName, int oldIsbn) {
         try (PreparedStatement st = conn.prepareStatement(UPDATE_SOROZAT_STR)){
             st.setString(1, series.getName());
             st.setInt(2, series.getIsbn());
             st.setString(3, oldName);
+            st.setInt(4, oldIsbn);
 
             int res = st.executeUpdate();
 
@@ -113,8 +114,8 @@ public class SeriesDAOImpl implements SeriesDAO{
 
             while(rs.next()){
                 Series series = new Series();
-                series.setName(rs.getString("Sorozat címe"));
-                series.setIsbn(rs.getInt("Könyv ISBN száma"));
+                series.setName(rs.getString("nev"));
+                series.setIsbn(rs.getInt("isbn"));
 
                 serieslist.add(series);
             }

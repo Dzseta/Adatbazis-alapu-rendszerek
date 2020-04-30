@@ -25,4 +25,6 @@ public class OrderController {
     public boolean delete(Order order){
         return dao.delete(order);
     }
+
+    public boolean quantityNumber(Order order, int id) { return dao.quantityNumber(order, id); };
 }

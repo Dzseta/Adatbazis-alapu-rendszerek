@@ -5,17 +5,16 @@ import hu.adatb.model.Book;
 import hu.adatb.model.Shop;
 import hu.adatb.view.*;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
@@ -47,13 +46,16 @@ public class App extends Application {
         contents.prefHeightProperty().bind(stage.heightProperty());
         contents.prefWidthProperty().bind(stage.widthProperty());
         books = createBookPanels(stage);
+        GridPane search = createSearchBar(stage);
 
         Button refreshButton = new Button("Frissítés");
-        refreshButton.setOnAction(e ->refreshContents(stage));
+        refreshButton.setOnAction(e -> refreshContents(stage));
 
+        contents.setTop(search);
         contents.setCenter(books);
         contents.setBottom(refreshButton);
         BorderPane.setAlignment(refreshButton, Pos.CENTER);
+        BorderPane.setAlignment(search, Pos.CENTER);
 
         root.getChildren().add(contents);
 
@@ -116,13 +118,13 @@ public class App extends Application {
 
         listGenre.setOnAction(e -> new ListGenreDialog(genreController));
 
-        //addStock.setOnAction(e -> new AddStockDialog(stockController));
-        //.setOnAction(e -> new ListStockDialog(stockController));
+        addStock.setOnAction(e -> new AddStockDialog(stockController, bookController, shopController));
+        listStock.setOnAction(e -> new ListStockDialog(stockController, bookController, shopController));
 
         listOrder.setOnAction(e -> new ListOrderDialog(orderController));
 
-        //addSeries.setOnAction(e -> new AddSeriesDialog(seriesController));
-        //listSeries.setOnAction(e -> new ListSeriesDialog(seriesController));
+        addSeries.setOnAction(e -> new AddSeriesDialog(seriesController));
+        listSeries.setOnAction(e -> new ListSeriesDialog(seriesController));
 
 
         addUser.visibleProperty().bind(sessionController.isLoggedIn().not());
@@ -158,10 +160,51 @@ public class App extends Application {
         panels.setOrientation(Orientation.HORIZONTAL);
         panels.prefWidthProperty().bind(stage.widthProperty());
         for(Book b: bookController.list()){
-            BookPanel panel = new BookPanel(b, authorController, genreController);
+            BookPanel panel = new BookPanel(b, authorController, genreController, bookController);
             panel.prefWidthProperty().bind(stage.widthProperty().subtract(20).divide(3));
             panels.getChildren().add(panel);
         }
+        return panels;
+    }
+
+    private GridPane createSearchBar(Stage stage){
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(10));
+
+        TextField titleField = new TextField();
+        TextField authorField = new TextField();
+        TextField genreField = new TextField();
+
+        Button searchButton = new Button("Keresés");
+        searchButton.setOnAction(e -> {
+            contents.getChildren().remove(books);
+            books = createBookPanelsWithQuery(stage, titleField.getText(), authorField.getText(), genreField.getText());
+            contents.setCenter(books);
+        });
+
+        grid.add(new Text("Cím:"), 0, 0);
+        grid.add(titleField, 1, 0);
+        grid.add(new Text("Szerző:"), 2, 0);
+        grid.add(authorField, 3, 0);
+        grid.add(new Text("Műfaj:"), 4, 0);
+        grid.add(genreField, 5, 0);
+        grid.add(searchButton, 6, 0);
+
+        return grid;
+    }
+
+    private FlowPane createBookPanelsWithQuery(Stage stage, String title, String author, String genre){
+        FlowPane panels = new FlowPane();
+        panels.setOrientation(Orientation.HORIZONTAL);
+        panels.prefWidthProperty().bind(stage.widthProperty());
+        for(Book b: bookController.getSelectedBooks(title, author, genre)){
+            BookPanel panel = new BookPanel(b, authorController, genreController, bookController);
+            panel.prefWidthProperty().bind(stage.widthProperty().subtract(20).divide(3));
+            panels.getChildren().add(panel);
+        }
+
         return panels;
     }
 

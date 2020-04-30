@@ -1,9 +1,8 @@
 package hu.adatb.view;
 
-import hu.adatb.controller.OrderController;
-import hu.adatb.model.Order;
+import hu.adatb.controller.SeriesController;
+import hu.adatb.model.Series;
 import hu.adatb.util.Utils;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -18,13 +17,13 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-public class ListOrderDialog extends Stage {
-    private OrderController orderController;
+public class ListSeriesDialog extends Stage {
+    private SeriesController controller;
 
-    private TableView<Order> table;
+    private TableView<Series> table;
 
-    public ListOrderDialog(OrderController orderController) {
-        this.orderController = orderController;
+    public ListSeriesDialog(SeriesController controller){
+        this.controller = controller;
         construct();
     }
 
@@ -45,6 +44,9 @@ public class ListOrderDialog extends Stage {
         Button deleteButton = new Button("Törlés");
         deleteButton.setOnAction(e -> deleteItem());
 
+        Button modifyButton = new Button("Módosítás");
+        modifyButton.setOnAction(e -> modifyItem());
+
         Button cancelButton = new Button("Mégse");
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(e -> {
@@ -55,44 +57,47 @@ public class ListOrderDialog extends Stage {
         buttonPane.setOrientation(Orientation.HORIZONTAL);
         buttonPane.setHgap(15);
         buttonPane.setAlignment(Pos.CENTER);
-        buttonPane.getChildren().addAll(okButton, deleteButton, cancelButton);
+        buttonPane.getChildren().addAll(okButton, modifyButton, deleteButton, cancelButton);
 
         grid.add(buttonPane, 0, 1, 2, 1);
 
         Scene scene = new Scene(grid);
         setScene(scene);
-        setTitle("Kuponok");
+        setTitle("Sorozatok");
         show();
     }
 
-    private void initializeTable(){
+    public void initializeTable(){
         table = new TableView<>();
-        TableColumn<Order, String> isbnCol = new TableColumn<>("Isbn");
-        TableColumn<Order, String> amountCol = new TableColumn<>("Darabszám");
-        TableColumn<Order, String> timeCol = new TableColumn<>("Rendelés ideje");
-        TableColumn<Order, String> subtotalCol = new TableColumn<>("Részösszeg");
+        TableColumn<Series, String> nameCol = new TableColumn<>("Sorozat címe");
+        TableColumn<Series, String> isbnCol = new TableColumn<>("Könyv ISBN száma");
 
+        nameCol.setCellValueFactory(data -> data.getValue().nameProperty());
         isbnCol.setCellValueFactory(data -> data.getValue().isbnProperty().asString());
-        amountCol.setCellValueFactory(data -> data.getValue().quantityProperty().asString());
-        timeCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTimeOrder().toString()));
-        subtotalCol.setCellValueFactory(data -> data.getValue().subtotalProperty().asString());
 
+        table.getColumns().addAll(nameCol, isbnCol);
+        List<Series> list = controller.list();
+        table.setItems(FXCollections.observableList(list));
 
-        table.getColumns().addAll(isbnCol, amountCol, timeCol, subtotalCol);
-        List<Order> list = orderController.list();
+    }
+
+    public void refreshTable(){
+        List<Series> list = controller.list();
         table.setItems(FXCollections.observableList(list));
     }
 
-    private void refreshTable(){
-        List<Order> list = orderController.list();
-        table.setItems(FXCollections.observableList(list));
-    }
-
-    private void deleteItem(){
-        Order order = table.getSelectionModel().getSelectedItem();
-        if(order != null && Utils.showConfirmation("Biztos, hogy törli a kijelölt elemet?")){
-            orderController.delete(order);
+    public void deleteItem(){
+        Series series = table.getSelectionModel().getSelectedItem();
+        if(series != null && Utils.showConfirmation("Biztos, hogy törli a kijelölt elemet?")){
+            controller.delete(series);
             refreshTable();
+        }
+    }
+
+    public void modifyItem(){
+        Series series = table.getSelectionModel().getSelectedItem();
+        if(series != null) {
+            ModifySeriesDialog dialog = new ModifySeriesDialog(controller, series, this);
         }
     }
 }

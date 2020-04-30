@@ -9,12 +9,10 @@ public class Series {
 
     private StringProperty name = new SimpleStringProperty();
     private IntegerProperty isbn = new SimpleIntegerProperty();
-    private IntegerProperty quantity = new SimpleIntegerProperty();
 
-    public Series(String name, int isbn, int quantity){
+    public Series(String name, int isbn){
         this.name.setValue(name);
         this.isbn.setValue(isbn);
-        this.quantity.setValue(quantity);
     }
 
     public Series(){ }
@@ -43,15 +41,4 @@ public class Series {
         this.isbn.set(isbn);
     }
 
-    public int getQuantity() {
-        return quantity.get();
-    }
-
-    public IntegerProperty quantityProperty() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity.set(quantity);
-    }
 }

@@ -1,6 +1,7 @@
 package hu.adatb.view;
 
 import hu.adatb.controller.AuthorController;
+import hu.adatb.controller.BookController;
 import hu.adatb.controller.GenreController;
 import hu.adatb.model.Author;
 import hu.adatb.model.Book;
@@ -14,11 +15,13 @@ public class BookPanel extends GridPane {
     private Book book;
     private AuthorController authorController;
     private GenreController genreController;
+    private BookController bookController;
 
-    public BookPanel(Book book, AuthorController authorController, GenreController genreController) {
+    public BookPanel(Book book, AuthorController authorController, GenreController genreController, BookController bookController) {
         this.book = book;
         this.authorController = authorController;
         this.genreController = genreController;
+        this.bookController = bookController;
         construct();
     }
 
@@ -49,7 +52,7 @@ public class BookPanel extends GridPane {
         Text price = new Text(String.valueOf(book.getPrice()) + " Ft");
 
         Button detailsButton = new Button("Részletek");
-        detailsButton.setOnAction(e -> new BookDetailsPage(authorController, book, genreController));
+        detailsButton.setOnAction(e -> new BookDetailsPage(authorController, book, genreController, bookController));
 
         add(title, 0, 0);
         add(price, 1, 0);

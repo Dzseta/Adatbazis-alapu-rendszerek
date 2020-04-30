@@ -17,9 +17,9 @@ public class StockDAOImpl implements StockDAO {
 
     private static final String ADD_RAKTARON_STR = "INSERT INTO RAKTARON VALUES (?,?,?) ";
 
-    private static final String DELETE_RAKTARON_STR = "DELETE FROM RAKTARON WHERE ISBN=?, AZONOSITO=? ";
+    private static final String DELETE_RAKTARON_STR = "DELETE FROM RAKTARON WHERE ISBN=? AND AZONOSITO=? ";
 
-    private static final String UPDATE_RAKTARON_STR = "UPDATE RAKTARON SET isbn=?,azonosito=?,darabszam=? WHERE ISBN=?, AZONOSITO=? ";
+    private static final String UPDATE_RAKTARON_STR = "UPDATE RAKTARON SET isbn=?,azonosito=?,darabszam=? WHERE ISBN = ? AND AZONOSITO = ? ";
 
     private static final String LIST_RAKTARON_STR = "SELECT * FROM RAKTARON ";
 
@@ -107,12 +107,11 @@ public class StockDAOImpl implements StockDAO {
     @Override
     public boolean update(Stock stock, int oldIsbn, int oldId) {
         try (PreparedStatement st = conn.prepareStatement(UPDATE_RAKTARON_STR)){
-            st.setInt(1, stock.getId());
-            st.setInt(2, stock.getIsbn());
+            st.setInt(1, stock.getIsbn());
+            st.setInt(2, stock.getId());
             st.setInt(3, stock.getQuantity());
-            st.setInt(4, oldId);
-            st.setInt(5, oldIsbn);
-
+            st.setInt(4, oldIsbn);
+            st.setInt(5, oldId);
             int res = st.executeUpdate();
 
             if(res == 1){
@@ -135,7 +134,8 @@ public class StockDAOImpl implements StockDAO {
             while(rs.next()){
                 Stock stock = new Stock();
                 stock.setIsbn(rs.getInt("ISBN"));
-                stock.setId(rs.getInt("Áruház ID-je"));
+                stock.setId(rs.getInt("azonosito"));
+                stock.setQuantity(rs.getInt("darabszam"));
 
                 stocklist.add(stock);
             }

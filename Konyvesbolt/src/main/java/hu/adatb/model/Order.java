@@ -14,14 +14,16 @@ public class Order {
     private StringProperty location = new SimpleStringProperty();
     private Date timeOrder = new Date();
     private Date timeReceipt = new Date();
+    private IntegerProperty subtotal = new SimpleIntegerProperty();
 
-    public Order(String email, int isbn, int quantity, String location, Date timeOrder, Date timeReceipt){
+    public Order(String email, int isbn, int quantity, String location, Date timeOrder, Date timeReceipt, int subtotal){
         this.email.setValue(email);
         this.isbn.setValue(isbn);
         this.quantity.setValue(quantity);
         this.location.setValue(location);
         this.timeOrder = timeOrder;
         this.timeReceipt = timeReceipt;
+        this.subtotal.setValue(subtotal);
     }
 
     public Order(String email, int isbn, int quantity, String location, Date timeOrder){
@@ -96,5 +98,17 @@ public class Order {
 
     public void setTimeReceipt(Date timeReceipt) {
         this.timeReceipt = timeReceipt;
+    }
+
+    public int getSubtotal() {
+        return subtotal.get();
+    }
+
+    public IntegerProperty subtotalProperty() {
+        return subtotal;
+    }
+
+    public void setSubtotal(int subtotal) {
+        this.subtotal.set(subtotal);
     }
 }

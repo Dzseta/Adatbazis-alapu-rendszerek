@@ -28,4 +28,8 @@ public class CouponController {
     public List<Coupon> list(){
         return dao.list();
     }
+
+    public Coupon getSelectedCoupon(String code){
+        return dao.getSelectedCoupon(code);
+    }
 }

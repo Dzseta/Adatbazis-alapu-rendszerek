@@ -21,7 +21,7 @@ public class SeriesController {
         return dao.delete(series);
     }
 
-    public boolean update(Series series, String oldName) { return dao.update(series, oldName); }
+    public boolean update(Series series, String oldName, int oldIsbn) { return dao.update(series, oldName, oldIsbn); }
 
     public List<Series> list(){
         return dao.list();

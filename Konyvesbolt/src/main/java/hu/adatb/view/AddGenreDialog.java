@@ -56,10 +56,6 @@ public class AddGenreDialog extends Stage {
                 Utils.showWarning("Az ISBN nem szám!");
                 return;
             }
-            if(isbn < 0){
-                Utils.showWarning("Az ISBN nem lehet negatív szám!");
-                return;
-            }
 
             if(controller.foreignKey(new Genre(nameField.getText(), isbn))) {
                 Utils.showWarning("Nincs ilyen könyv!");

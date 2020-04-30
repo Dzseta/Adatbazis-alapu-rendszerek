@@ -9,4 +9,5 @@ public interface CouponDAO {
     boolean deleteCoupon(String code);
     boolean modifyCoupon(Coupon coupon, String code);
     List<Coupon> list();
+    Coupon getSelectedCoupon(String code);
 }
