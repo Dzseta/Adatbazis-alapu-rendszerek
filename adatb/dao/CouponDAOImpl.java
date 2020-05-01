@@ -2,7 +2,6 @@ package hu.adatb.dao;
 
 import hu.adatb.controller.DBController;
 import hu.adatb.model.Coupon;
-import oracle.jdbc.proxy.annotation.Pre;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,7 +21,6 @@ public class CouponDAOImpl implements CouponDAO {
     private static final String GET_COUPON_STR = "SELECT * FROM KUPONOK ";
 
     private static final String GET_CPN_STR = "SELECT * FROM KUPONOK WHERE KOD=? ";
-
 
     public void initialize(){
         conn = DBController.connect();

@@ -4,6 +4,8 @@ import hu.adatb.dao.UserDAO;
 import hu.adatb.dao.UserDAOImpl;
 import hu.adatb.model.User;
 
+import java.util.List;
+
 public class UserController {
     private UserDAO dao = new UserDAOImpl();
 
@@ -33,5 +35,9 @@ public class UserController {
 
     public boolean isAdmin(String email){
         return dao.isAdmin(email);
+    }
+
+    public List<User> listCities(){
+        return dao.listCities();
     }
 }

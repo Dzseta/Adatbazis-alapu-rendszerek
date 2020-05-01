@@ -29,5 +29,4 @@ public class ShopController {
     }
 
     public Shop getSelectedShop(String name){ return dao.getSelectedShop(name); }
-
 }

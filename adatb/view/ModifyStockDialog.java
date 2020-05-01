@@ -52,7 +52,6 @@ public class ModifyStockDialog extends Stage {
         grid.setHgap(10);
         grid.setPadding(new Insets(10));
 
-
         ComboBox<Integer> isbnField = new ComboBox<>(listBook());
         isbnField.getSelectionModel().select(stock.getIsbn());
         ComboBox<Integer> idField = new ComboBox<>(listShop());

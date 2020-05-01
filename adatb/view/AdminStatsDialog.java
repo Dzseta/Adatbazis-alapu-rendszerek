@@ -1,59 +1,89 @@
 package hu.adatb.view;
 
-import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Side;
+import hu.adatb.controller.*;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.chart.PieChart;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
+
 public class AdminStatsDialog extends Stage {
+    private SeriesController seriesController;
+    private OrderController orderController;
+    private UserController userController;
+    private BookController bookController;
+    private GenreController genreController;
+    private StatsController statsController;
+    private ShopController shopController;
 
-    public static ObservableList<PieChart.Data> getChartData()
-    {
-        ObservableList<PieChart.Data> data = FXCollections. observableArrayList();
-        data.add(new PieChart.Data("China", 1275));
-        data.add(new PieChart.Data("India", 1017));
-        data.add(new PieChart.Data("Brazil", 172));
-        data.add(new PieChart.Data("UK", 59));
-        data.add(new PieChart.Data("USA", 285));
-        return data;
+    public AdminStatsDialog(SeriesController seriesController, OrderController orderController, UserController userController, BookController bookController, GenreController genreController, StatsController statsController, ShopController shopController) {
+        this.seriesController = seriesController;
+        this.orderController = orderController;
+        this.userController = userController;
+        this.bookController = bookController;
+        this.genreController = genreController;
+        this.statsController = statsController;
+        this.shopController = shopController;
+        construct();
+    }
+
+    private void construct(){
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(10));
+
+        Button seriesSalesButton = new Button("Megtekint");
+        seriesSalesButton.setOnAction(e -> new SeriesSalesDialog(seriesController));
+
+        Button citiesSalesButton = new Button("Megtekint");
+        citiesSalesButton.setOnAction(e -> new CitySalesDialog(orderController, userController));
+
+        Button avgBookSalesButton = new Button("Megtekint");
+        avgBookSalesButton.setOnAction(e -> new AvgBookSalesDialog(bookController, orderController));
+
+        Button bookPerGenreButton = new Button("Megtekint");
+        bookPerGenreButton.setOnAction(e -> new BookPerGenreDialog(bookController, genreController));
+
+        Button incomeChartButton = new Button("Megtekint");
+        incomeChartButton.setOnAction(e -> {
+            try {
+                new IncomeChartDialog(statsController);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        Button stockChartButton = new Button("Megtekint");
+        stockChartButton.setOnAction(e -> {
+            try {
+                new StockChartDialog(statsController, shopController);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        grid.add(new Text("Eladások száma sorozatonként"), 0, 0);
+        grid.add(seriesSalesButton, 1, 0);
+        grid.add(new Text("Eladások száma városonként"), 0, 1);
+        grid.add(citiesSalesButton, 1, 1);
+        grid.add(new Text("Átlagos eladások száma könyvenként"), 0, 2);
+        grid.add(avgBookSalesButton, 1, 2);
+        grid.add(new Text("Könyvek száma műfajonként"), 0, 3);
+        grid.add(bookPerGenreButton, 1, 3);
+        grid.add(new Text("Bevétel havi bontásban"), 0, 4);
+        grid.add(incomeChartButton, 1, 4);
+        grid.add(new Text("Raktáron levő könyvek statisztikája"), 0, 5);
+        grid.add(stockChartButton, 1, 5);
+
+        Scene scene = new Scene(grid);
+        setScene(scene);
+        setTitle("Részletes statisztikák");
+        show();
     }
 
 
-    public void test(Stage stage)
-    {
-        // Create the PieChart
-        PieChart chart = new PieChart();
-        // Set the Title of the Chart
-        chart.setTitle("Population in Year 2000");
-        // Place the legend on the left side
-        chart.setLegendSide(Side.LEFT);
-        // Set the Data for the Chart
-        ObservableList<PieChart.Data> chartData = AdminStatsDialog.getChartData();
-        chart.setData(chartData);
-
-        // Create a Stackpane
-        StackPane root = new StackPane(chart);
-        // Set the Style-properties of the Pane
-        root.setStyle("-fx-padding: 10;" +
-                "-fx-border-style: solid inside;" +
-                "-fx-border-width: 2;" +
-                "-fx-border-insets: 5;" +
-                "-fx-border-radius: 5;" +
-                "-fx-border-color: blue;");
-
-        // Create the Scene
-        Scene scene = new Scene(root);
-        // Add the Stylesheet to the Scene
-        scene.getStylesheets().add(getClass().getResource("piechart.css").toExternalForm());
-        // Add the Scene to the Stage
-        stage.setScene(scene);
-        // Set the Title of the Stage
-        stage.setTitle("A Pie Chart Example");
-        // Display the Stage
-        stage.show();
-    }
 }

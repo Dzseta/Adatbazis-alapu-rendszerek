@@ -8,6 +8,8 @@ public interface OrderDAO {
     boolean foreignKey(Order order);
     boolean add(Order order);
     boolean delete(Order order);
-    List<Order> list();
+    List<Order> list(String email);
     boolean quantityNumber(Order order, int id);
+    int getSalesPerCity(String name);
+    double getAvgBookSales(int isbn);
 }

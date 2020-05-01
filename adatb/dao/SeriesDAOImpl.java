@@ -3,9 +3,7 @@ package hu.adatb.dao;
 import hu.adatb.controller.DBController;
 import hu.adatb.model.Series;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
@@ -23,6 +21,8 @@ public class SeriesDAOImpl implements SeriesDAO{
     private static final String LIST_SOROZAT_STR = "SELECT * FROM SOROZAT ";
 
     private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK WHERE ISBN=? ";
+
+    private static final String GET_SALES_STR = "{? = call GET_SALES_PER_SERIES(?)} ";
 
     public void initialize(){
         conn = DBController.connect();
@@ -125,5 +125,20 @@ public class SeriesDAOImpl implements SeriesDAO{
         }
 
         return serieslist;
+    }
+
+    @Override
+    public int getSalesPerSeries(String name) {
+        try (CallableStatement st = conn.prepareCall(GET_SALES_STR)){
+            st.registerOutParameter(1, Types.INTEGER);
+            st.setString(2, name);
+            st.execute();
+
+            return st.getInt(1);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

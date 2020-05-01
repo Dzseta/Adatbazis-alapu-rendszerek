@@ -55,7 +55,7 @@ public class BookDetailsPage extends Stage {
             builder.append(a.getName());
             builder.append(", ");
         }
-        builder.delete(builder.length() - 2, builder.length() - 1);
+        if (builder.length() > 2) builder.delete(builder.length() - 2, builder.length() - 1);
 
         Text authors = new Text("Szerző(k): " + builder.toString());
 
@@ -64,7 +64,7 @@ public class BookDetailsPage extends Stage {
             builder.append(g.getName());
             builder.append(", ");
         }
-        builder.delete(builder.length() - 2, builder.length() - 1);
+        if (builder.length() > 2) builder.delete(builder.length() - 2, builder.length() - 1);
 
 
         Text published = new Text(book.getPublished() + ", ");
@@ -92,8 +92,9 @@ public class BookDetailsPage extends Stage {
                 shoppingCart.addBook(book);
                 close();
             } else {
-                Utils.showWarning("A kosárba rakáshoz jelentkezzen be!");
+                Utils.showWarning("A kosrába rakáshoz jelentkezzen be!");
             }
+
         });
         Button cancelButton = new Button("Mégse");
         cancelButton.setOnAction(e -> close());
@@ -107,11 +108,13 @@ public class BookDetailsPage extends Stage {
         grid.add(buttonPane, 0, 6, 2, 1);
 
         root.setCenter(grid);
+        root.setRight(createRecommendedPanel());
 
         Scene scene = new Scene(root);
         setScene(scene);
         setTitle(book.getTitle());
         show();
+
     }
 
     private GridPane createRecommendedPanel(){

@@ -2,10 +2,7 @@ package hu.adatb.dao;
 
 import hu.adatb.controller.DBController;
 import hu.adatb.model.Book;
-import hu.adatb.model.Publisher;
-import hu.adatb.util.Utils;
 
-import java.io.Console;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +21,14 @@ public class BookDAOImpl implements BookDAO{
 
     private static final String GET_KONYV_STR = "SELECT * FROM KONYVEK WHERE ISBN=? ";
 
-    private static final String LIST_KIADOK_STR = "SELECT * FROM KIADO WHERE NEV=? ";
-
     private static final String LIST_BOOKS_STR = "SELECT DISTINCT KONYVEK.ISBN, CIM, KIADAS, KIADONEV, OLDALSZAM, KOTES, MERET, AR " +
             "FROM KONYVEK, SZERZOK, MUFAJOK WHERE KONYVEK.ISBN = SZERZOK.ISBN " +
             "AND KONYVEK.ISBN = MUFAJOK.ISBN ";
 
     private static final String GET_SIMILAR_STR = "{? = call GET_SIMILAR(?)} ";
+
+    private static final String GET_BOOK_PER_GENRE_STR = "SELECT COUNT(*) FROM KONYVEK, MUFAJOK WHERE " +
+            "KONYVEK.ISBN = MUFAJOK.ISBN AND MUFAJOK.MUFAJ = ? ";
 
     public void initialize(){
         conn = DBController.connect();
@@ -171,26 +169,26 @@ public class BookDAOImpl implements BookDAO{
 
         String localStr = LIST_BOOKS_STR;
         if(!title.isEmpty()){
-            localStr += "AND CIM=? ";
+            localStr += "AND CIM LIKE ? ";
         }
         if(!author.isEmpty()){
-            localStr += "AND NEV=? ";
+            localStr += "AND NEV LIKE ? ";
         }
         if(!genre.isEmpty()){
-            localStr += "AND MUFAJ=? ";
+            localStr += "AND MUFAJ LIKE ? ";
         }
 
 
         try (PreparedStatement st = conn.prepareStatement(localStr)){
             int args = 1;
             if(!title.isEmpty()){
-                st.setString(args++, title);
+                st.setString(args++, '%' + title + '%');
             }
             if(!author.isEmpty()){
-                st.setString(args++, author);
+                st.setString(args++, '%' + author + '%');
             }
             if(!genre.isEmpty()){
-                st.setString(args, genre);
+                st.setString(args, '%' + genre + '%');
             }
 
             ResultSet rs = st.executeQuery();
@@ -236,5 +234,21 @@ public class BookDAOImpl implements BookDAO{
         }
 
         return null;
+    }
+
+    @Override
+    public int getBookPerGenre(String genre) {
+        try (PreparedStatement st = conn.prepareStatement(GET_BOOK_PER_GENRE_STR)){
+            st.setString(1, genre);
+
+            ResultSet rs = st.executeQuery();
+
+            if(rs.next()){
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

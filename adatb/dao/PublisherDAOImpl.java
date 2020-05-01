@@ -108,14 +108,10 @@ public class PublisherDAOImpl implements PublisherDAO {
 
                 publishers.add(publisher);
             }
-
-
         } catch (Exception e){
             e.printStackTrace();
         }
-
         return publishers;
-
     }
 
 }

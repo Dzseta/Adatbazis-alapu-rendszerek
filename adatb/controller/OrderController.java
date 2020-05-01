@@ -18,8 +18,8 @@ public class OrderController {
         return dao.add(order);
     }
 
-    public List<Order> list(){
-        return dao.list();
+    public List<Order> list(String email){
+        return dao.list(email);
     }
 
     public boolean delete(Order order){
@@ -27,4 +27,12 @@ public class OrderController {
     }
 
     public boolean quantityNumber(Order order, int id) { return dao.quantityNumber(order, id); };
+
+    public int getSalesPerCity(String name){
+        return dao.getSalesPerCity(name);
+    }
+
+    public double getAvgBookSales(int isbn){
+        return dao.getAvgBookSales(isbn);
+    }
 }

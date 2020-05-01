@@ -10,4 +10,5 @@ public interface SeriesDAO {
     boolean delete(Series series);
     boolean update(Series series, String oldName, int oldIsbn);
     List<Series> list();
+    int getSalesPerSeries(String name);
 }

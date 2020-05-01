@@ -47,6 +47,9 @@ public class ListBookDialog extends Stage {
 
         initializeTable();
 
+        table.prefHeightProperty().bind(grid.heightProperty());
+        table.prefWidthProperty().bind(grid.widthProperty());
+
         grid.add(table, 0, 0, 2, 1);
 
         Button okButton = new Button("Frissítés");
@@ -73,7 +76,7 @@ public class ListBookDialog extends Stage {
 
         grid.add(buttonPane, 0, 1, 2, 1);
 
-        Scene scene = new Scene(grid);
+        Scene scene = new Scene(grid, 580, 480);
         setScene(scene);
         setTitle("Könyvek");
         show();

@@ -46,7 +46,7 @@ public class BookPanel extends GridPane {
             builder.append(a.getName());
             builder.append(", ");
         }
-        builder.delete(builder.length() - 2, builder.length() - 1);
+        if (builder.length() > 2) builder.delete(builder.length() - 2, builder.length() - 1);
 
         Text authors = new Text("Szerző(k): " + builder.toString());
         Text price = new Text(String.valueOf(book.getPrice()) + " Ft");

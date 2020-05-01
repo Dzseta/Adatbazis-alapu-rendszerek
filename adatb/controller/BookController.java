@@ -37,4 +37,8 @@ public class BookController {
     public Book getSimilar(int isbn){
         return dao.getSimilar(isbn);
     }
+
+    public int getBookPerGenre(String genre){
+        return dao.getBookPerGenre(genre);
+    }
 }

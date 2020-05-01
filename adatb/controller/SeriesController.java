@@ -26,4 +26,8 @@ public class SeriesController {
     public List<Series> list(){
         return dao.list();
     }
+
+    public int getSalesPerSeries(String name){
+        return dao.getSalesPerSeries(name);
+    }
 }

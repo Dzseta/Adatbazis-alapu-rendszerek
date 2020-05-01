@@ -16,7 +16,7 @@ public class OrderDAOImpl implements OrderDAO {
 
     private static final String ADD_RENDELESEK_STR = "INSERT INTO RENDELESEK VALUES (?,?,?,?,?,?,?) ";
 
-    private static final String LIST_RENDELESEK_STR = "SELECT * FROM RENDELESEK ";
+    private static final String LIST_RENDELESEK_STR = "SELECT * FROM RENDELESEK WHERE EMAIL = ? ORDER BY RENDELES_IDEJE DESC ";
 
     private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK WHERE IMDB=? ";
 
@@ -26,7 +26,11 @@ public class OrderDAOImpl implements OrderDAO {
 
     private static final String SELECT_RAKTARON_STR = "SELECT * FROM RAKTARON WHERE ISBN = ? AND AZONOSITO = ? ";
 
-    private static final String UPDATE_RAKTARON_STR = "UPDATE RAKTARON SET darabszam=? WHERE ISBN = ? AND AZONOSITO = ? ";
+    private static final String GET_CITY_SALES_STR = "SELECT SUM(DARABSZAM) FROM FELHASZNALOK, RENDELESEK WHERE " +
+            "FELHASZNALOK.EMAIL = RENDELESEK.EMAIL AND FELHASZNALOK.VAROS = ? ";
+
+    private static final String GET_AVG_BOOK_STR = "SELECT AVG(DARABSZAM) FROM KONYVEK, RENDELESEK WHERE " +
+            "KONYVEK.ISBN = RENDELESEK.ISBN AND KONYVEK.ISBN = ? ";
 
     public void initialize(){
         conn = DBController.connect();
@@ -95,10 +99,12 @@ public class OrderDAOImpl implements OrderDAO {
 
 
     @Override
-    public List<Order> list() {
+    public List<Order> list(String email) {
         List<Order> orders = new ArrayList<>();
 
         try (PreparedStatement st = conn.prepareStatement(LIST_RENDELESEK_STR)){
+            st.setString(1, email);
+
             ResultSet rs = st.executeQuery();
 
             while(rs.next()){
@@ -129,29 +135,11 @@ public class OrderDAOImpl implements OrderDAO {
             st.setInt(1, order.getIsbn());
             st.setInt(2, id);
 
-            int res = st.executeUpdate();
-
             ResultSet rs = st.executeQuery();
 
             if((rs.next())) {
                 count = rs.getInt(3);
                 if (order.getQuantity() <= count) {
-                    count -= order.getQuantity();
-                    //levonas
-                    try (PreparedStatement st2 = conn.prepareStatement(UPDATE_RAKTARON_STR)){
-                        st2.setInt(1, count);
-                        st2.setInt(2, order.getIsbn());
-                        st2.setInt(3, id);
-
-                        int res2 = st2.executeUpdate();
-
-                        if(res2 == 1){
-                            return false;
-                        }
-
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
                     return true;
                 }
             }
@@ -180,4 +168,37 @@ public class OrderDAOImpl implements OrderDAO {
 
         return false;
     }
+
+    @Override
+    public int getSalesPerCity(String name) {
+        try (PreparedStatement st = conn.prepareStatement(GET_CITY_SALES_STR)){
+            st.setString(1, name);
+
+            ResultSet rs = st.executeQuery();
+
+            if(rs.next()){
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public double getAvgBookSales(int isbn) {
+        try (PreparedStatement st = conn.prepareStatement(GET_AVG_BOOK_STR)){
+            st.setInt(1, isbn);
+
+            ResultSet rs = st.executeQuery();
+
+            if(rs.next()){
+                return rs.getDouble(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 }

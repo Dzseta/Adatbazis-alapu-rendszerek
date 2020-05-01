@@ -5,6 +5,8 @@ import hu.adatb.model.Book;
 import hu.adatb.model.Order;
 import hu.adatb.model.User;
 import hu.adatb.util.Utils;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -123,10 +125,13 @@ public class ShoppingCart extends Stage {
 
             grid.add(new Text(b.getTitle()), 0, index);
             grid.add(amountSpinner, 1, index);
-            grid.add(removeButton, 2, index);
+            grid.add(new Text(b.getPrice() + " Ft/db"), 2, index);
+            grid.add(removeButton, 3, index);
 
             index++;
+
         }
+
         return grid;
     }
 
@@ -139,4 +144,5 @@ public class ShoppingCart extends Stage {
     public void refreshContents(){
         contents.setCenter(createItems());
     }
+
 }
