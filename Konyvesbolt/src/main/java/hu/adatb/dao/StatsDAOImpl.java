@@ -3,29 +3,20 @@ package hu.adatb.dao;
 import hu.adatb.controller.DBController;
 import hu.adatb.controller.ShopController;
 import hu.adatb.model.Book;
-import hu.adatb.model.Shop;
-import hu.adatb.util.Utils;
-import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
+import java.util.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class StatsDAOImpl implements StatsDAO {
 
     private Connection conn;
     private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK WHERE isbn = ? ";
     private static final String COUNT_RENDELESEK_STR = "SELECT isbn, sum(darabszam) FROM rendelesek GROUP BY isbn ORDER BY sum(darabszam) DESC, isbn ";
+    private static final String HONAPOK_STR = "{ ? = call income(?)} ";
+    private static final String COUNT_STOCK_STR = "SELECT aruhazak.nev, SUM(raktaron.darabszam) FROM aruhazak NATURAL JOIN raktaron GROUP BY aruhazak.nev ";
 
     public void initialize(){
         conn = DBController.connect();
@@ -79,5 +70,37 @@ public class StatsDAOImpl implements StatsDAO {
             }
         }
         return books;
+    }
+
+    @Override
+    public int income(int honap) {
+
+        try (CallableStatement st = conn.prepareCall(HONAPOK_STR)){
+            st.registerOutParameter(1, Types.INTEGER);
+            st.setInt(2, honap);
+            st.execute();
+
+            int count = st.getInt(1);
+            return  count;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public HashMap<String, Integer> shops() {
+        HashMap<String, Integer> shopStocks = new HashMap<>();
+
+        try (PreparedStatement st = conn.prepareStatement(COUNT_STOCK_STR)){
+            ResultSet rs = st.executeQuery();
+            while(rs.next()){
+                shopStocks.put(rs.getString(1), rs.getInt(2));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return shopStocks;
     }
 }

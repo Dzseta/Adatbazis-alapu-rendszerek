@@ -89,11 +89,76 @@ CREATE TABLE rendelesek (
     atv_helyszin VARCHAR2(100),
     rendeles_ideje DATE,
     atvetel_ideje DATE,
+    subtotal NUMBER(8),
     CONSTRAINT RENDELESEK_FOREIGN_KEY_EMAIL FOREIGN KEY (email) REFERENCES felhasznalok(email),
     CONSTRAINT RENDELESEK_FOREIGN_KEY_ISBN FOREIGN KEY (ISBN) REFERENCES konyvek(ISBN),
     CONSTRAINT RENDELESEK_PRIMARY_KEY PRIMARY KEY (email, ISBN, rendeles_ideje)
 );
 
+CREATE OR REPLACE FUNCTION get_similar (i_isbn IN KONYVEK.ISBN%TYPE) RETURN NUMBER IS
+    v_sorozat_nev SOROZAT.NEV%TYPE;
+    v_count NUMBER;
+    CURSOR konyvek IS SELECT DISTINCT KONYVEK.ISBN AS id, nev, mufaj FROM KONYVEK, SOROZAT, MUFAJOK WHERE KONYVEK.ISBN = SOROZAT.ISBN 
+    AND KONYVEK.ISBN = MUFAJOK.ISBN AND KONYVEK.ISBN != i_isbn;
+    CURSOR mufaj IS SELECT mufaj FROM MUFAJOK WHERE ISBN = i_isbn;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM SOROZAT WHERE ISBN = i_isbn;
+    IF v_count != 0 THEN
+        SELECT NEV INTO v_sorozat_nev FROM SOROZAT WHERE ISBN = i_isbn;
+    ELSE
+        v_sorozat_nev := '';
+    END IF;
+    FOR k IN konyvek LOOP
+            IF v_sorozat_nev = k.nev THEN
+                RETURN k.id;
+            END IF;
+            FOR m IN mufaj LOOP
+                    IF m.mufaj = k.mufaj THEN
+                        RETURN k.id;
+                    END IF;
+                END LOOP;
+        END LOOP;
+    RETURN -1;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN -1;
+END get_similar;
+/
+
+CREATE OR REPLACE FUNCTION get_sales_per_series (v_ser IN SOROZAT.NEV%TYPE) RETURN NUMBER IS
+    v_sum NUMBER;
+BEGIN
+    SELECT SUM(RENDELESEK.DARABSZAM) INTO v_sum FROM SOROZAT, RENDELESEK WHERE SOROZAT.ISBN = RENDELESEK.ISBN AND SOROZAT.NEV = v_ser;
+    RETURN v_sum;
+END;
+/
+
+CREATE OR REPLACE FUNCTION income (honap NUMBER) RETURN NUMBER IS
+    osszeg NUMBER;
+BEGIN
+    SELECT SUM(subtotal) INTO osszeg FROM RENDELESEK WHERE EXTRACT(YEAR FROM rendeles_ideje)=EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM rendeles_ideje)=honap;
+    RETURN osszeg;
+END income;
+/
+
+CREATE OR REPLACE TRIGGER admin_delete
+BEFORE DELETE ON FELHASZNALOK
+FOR EACH ROW
+BEGIN
+    IF :OLD.ADMIN = 1 THEN
+        RAISE_APPLICATION_ERROR(-20111, 'Adminisztrátort nem lehet törölni!');
+    END IF;
+END;
+/
+
+
+CREATE OR REPLACE TRIGGER stock_update
+AFTER INSERT ON RENDELESEK
+FOR EACH ROW
+BEGIN
+    UPDATE RAKTARON SET DARABSZAM = (DARABSZAM - :NEW.DARABSZAM) WHERE RAKTARON.ISBN = :NEW.ISBN;
+END;
+/
 
 
 

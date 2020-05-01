@@ -22,6 +22,8 @@ public class GenreDAOImpl implements GenreDAO{
 
     private static final String LIST_MUFAJOK_STR = "SELECT * FROM MUFAJOK ";
 
+    private static final String LIST_DIST_MUFAJOK_STR = "SELECT DISTINCT MUFAJ FROM MUFAJOK ";
+
     private static final String GET_MUFAJ_STR = "SELECT * FROM MUFAJOK WHERE ISBN=? ";
 
     private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK WHERE ISBN=? ";
@@ -152,5 +154,26 @@ public class GenreDAOImpl implements GenreDAO{
         }
 
         return list;
+    }
+
+    @Override
+    public List<Genre> listDistinct() {
+        List<Genre> genres = new ArrayList<>();
+
+        try (PreparedStatement st = conn.prepareStatement(LIST_DIST_MUFAJOK_STR)){
+            ResultSet rs = st.executeQuery();
+
+            while(rs.next()){
+                Genre genre = new Genre();
+                genre.setName(rs.getString("MUFAJ"));
+
+                genres.add(genre);
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return genres;
     }
 }

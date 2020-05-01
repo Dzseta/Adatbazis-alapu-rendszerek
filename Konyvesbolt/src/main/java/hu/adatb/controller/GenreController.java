@@ -31,4 +31,8 @@ public class GenreController {
     public List<Genre> getSelectedGenre(int isbn){
         return dao.getSelectedGenre(isbn);
     }
+
+    public List<Genre> listDistinct(){
+        return dao.listDistinct();
+    }
 }

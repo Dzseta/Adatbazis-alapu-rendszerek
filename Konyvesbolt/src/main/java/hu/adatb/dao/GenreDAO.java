@@ -10,5 +10,6 @@ public interface GenreDAO {
     boolean delete(Genre genre);
     boolean update(Genre genre, String oldName, int oldIsbn);
     List<Genre> list();
+    List<Genre> listDistinct();
     List<Genre> getSelectedGenre(int isbn);
 }

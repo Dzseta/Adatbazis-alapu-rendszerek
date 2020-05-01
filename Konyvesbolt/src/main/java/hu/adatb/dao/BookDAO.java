@@ -12,4 +12,5 @@ public interface BookDAO {
     Book getSelectedBook(int isbn);
     List<Book> getSelectedBooks(String title, String author, String genre);
     Book getSimilar(int isbn);
+    int getBookPerGenre(String genre);
 }

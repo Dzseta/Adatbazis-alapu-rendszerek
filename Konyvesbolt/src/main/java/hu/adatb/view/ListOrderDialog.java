@@ -1,6 +1,7 @@
 package hu.adatb.view;
 
 import hu.adatb.controller.OrderController;
+import hu.adatb.controller.SessionController;
 import hu.adatb.model.Order;
 import hu.adatb.util.Utils;
 import javafx.beans.property.SimpleStringProperty;
@@ -20,11 +21,13 @@ import java.util.List;
 
 public class ListOrderDialog extends Stage {
     private OrderController orderController;
+    private SessionController sessionController;
 
     private TableView<Order> table;
 
     public ListOrderDialog(OrderController orderController) {
         this.orderController = orderController;
+        sessionController = SessionController.getInstance();
         construct();
     }
 
@@ -61,7 +64,7 @@ public class ListOrderDialog extends Stage {
 
         Scene scene = new Scene(grid);
         setScene(scene);
-        setTitle("Kuponok");
+        setTitle("Rendelések");
         show();
     }
 
@@ -79,12 +82,12 @@ public class ListOrderDialog extends Stage {
 
 
         table.getColumns().addAll(isbnCol, amountCol, timeCol, subtotalCol);
-        List<Order> list = orderController.list();
+        List<Order> list = orderController.list(sessionController.getUser().getEmail());
         table.setItems(FXCollections.observableList(list));
     }
 
     private void refreshTable(){
-        List<Order> list = orderController.list();
+        List<Order> list = orderController.list(sessionController.getUser().getEmail());
         table.setItems(FXCollections.observableList(list));
     }
 

@@ -109,7 +109,7 @@ public class App extends Application {
         logoutUser.setOnAction(e -> sessionController.logout());
 
         topList.setOnAction(e -> new TopListDialog(statsController, bookController, authorController));
-        adminStats.setOnAction(e -> new AdminStatsDialog());
+        adminStats.setOnAction(e -> new AdminStatsDialog(seriesController, orderController, userController, bookController, genreController, statsController, shopController));
 
         addBook.setOnAction(e -> new AddBookDialog(bookController, publisherController, authorController, genreController));
         listBook.setOnAction(e -> new ListBookDialog(bookController, publisherController, authorController, genreController));
@@ -143,7 +143,7 @@ public class App extends Application {
         publisherMenu.disableProperty().bind(sessionController.isAdmin().not());
         shopMenu.disableProperty().bind(sessionController.isAdmin().not());
         couponMenu.disableProperty().bind(sessionController.isAdmin().not());
-        bookMenu.disableProperty().bind(sessionController.isLoggedIn().not());
+        bookMenu.disableProperty().bind(sessionController.isAdmin().not());
         genreMenu.disableProperty().bind(sessionController.isAdmin().not());
         stockMenu.disableProperty().bind(sessionController.isAdmin().not());
         orderMenu.disableProperty().bind(sessionController.isLoggedIn().not());

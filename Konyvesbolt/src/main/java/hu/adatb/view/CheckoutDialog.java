@@ -119,7 +119,7 @@ public class CheckoutDialog extends Stage {
             }
 
             for(int i=0; i<orders.size(); i++){
-                if (orderController.quantityNumber(orders.get(i), shop.getId())) {
+                if (!orderController.quantityNumber(orders.get(i), shop.getId())) {
                     Utils.showWarning("Nincs elég könyv a raktárban!");
                     return;
                 }

@@ -7,6 +7,9 @@ import hu.adatb.util.Encoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAOImpl implements UserDAO {
     private Connection conn;
@@ -21,6 +24,8 @@ public class UserDAOImpl implements UserDAO {
 
     private static final String MODIFY_USER_STR = "UPDATE FELHASZNALOK SET VEZETEKNEV = ?, KERESZTNEV = ?, " +
             "JELSZO = ?, EMAIL = ?, IRANYITOSZAM = ?, VAROS = ?, UTCA = ?, HAZSZAM = ?, SZULDATUM = ? WHERE + EMAIL = ? ";
+
+    private static final String GET_CITIES_STR = "SELECT DISTINCT VAROS FROM FELHASZNALOK ";
 
     public void initialize(){
         conn = DBController.connect();
@@ -130,7 +135,10 @@ public class UserDAOImpl implements UserDAO {
             }
 
 
-        } catch (Exception e){
+        } catch (SQLException e){
+            if(e.getErrorCode() == 20111){
+                return false;
+            }
             e.printStackTrace();
         }
         return false;
@@ -161,5 +169,25 @@ public class UserDAOImpl implements UserDAO {
         }
 
         return false;
+    }
+
+    @Override
+    public List<User> listCities() {
+        List<User> list = new ArrayList<>();
+
+        try (PreparedStatement st = conn.prepareStatement(GET_CITIES_STR)){
+            ResultSet rs = st.executeQuery();
+
+            while(rs.next()){
+                User user = new User();
+                user.setCity(rs.getString(1));
+                list.add(user);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }
