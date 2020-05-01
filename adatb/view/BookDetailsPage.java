@@ -1,6 +1,7 @@
 package hu.adatb.view;
 
 import hu.adatb.controller.AuthorController;
+import hu.adatb.controller.BookController;
 import hu.adatb.controller.GenreController;
 import hu.adatb.controller.SessionController;
 import hu.adatb.model.Author;
@@ -21,15 +22,17 @@ import javafx.stage.Stage;
 public class BookDetailsPage extends Stage {
     private AuthorController authorController;
     private GenreController genreController;
+    private BookController bookController;
 
     private ShoppingCart shoppingCart;
     private SessionController sessionController;
 
     private Book book;
 
-    public BookDetailsPage(AuthorController authorController, Book book, GenreController genreController) {
+    public BookDetailsPage(AuthorController authorController, Book book, GenreController genreController, BookController bookController) {
         this.authorController = authorController;
         this.genreController = genreController;
+        this.bookController = bookController;
         this.book = book;
         shoppingCart = ShoppingCart.getInstance();
         sessionController = SessionController.getInstance();
@@ -89,9 +92,8 @@ public class BookDetailsPage extends Stage {
                 shoppingCart.addBook(book);
                 close();
             } else {
-                Utils.showWarning("A kosrába rakáshoz jelentkezzen be!");
+                Utils.showWarning("A kosárba rakáshoz jelentkezzen be!");
             }
-
         });
         Button cancelButton = new Button("Mégse");
         cancelButton.setOnAction(e -> close());
@@ -110,6 +112,30 @@ public class BookDetailsPage extends Stage {
         setScene(scene);
         setTitle(book.getTitle());
         show();
+    }
 
+    private GridPane createRecommendedPanel(){
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(10));
+
+        Book similar = bookController.getSimilar(book.getIsbn());
+
+        if(similar == null){
+            return new GridPane();
+        }
+
+        Button detailsButton = new Button("Megnézem");
+        detailsButton.setOnAction(e -> {
+            new BookDetailsPage(authorController, similar, genreController, bookController);
+            close();
+        });
+
+        grid.add(new Text("Ez is érdekelheti:"), 0, 0);
+        grid.add(new Text(similar.getTitle()), 0, 1);
+        grid.add(detailsButton, 0, 2);
+
+        return grid;
     }
 }

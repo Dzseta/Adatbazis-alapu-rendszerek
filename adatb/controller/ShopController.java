@@ -27,4 +27,7 @@ public class ShopController {
     public List<Shop> list(){
         return dao.list();
     }
+
+    public Shop getSelectedShop(String name){ return dao.getSelectedShop(name); }
+
 }

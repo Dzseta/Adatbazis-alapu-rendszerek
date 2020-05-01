@@ -21,6 +21,9 @@ public class CouponDAOImpl implements CouponDAO {
 
     private static final String GET_COUPON_STR = "SELECT * FROM KUPONOK ";
 
+    private static final String GET_CPN_STR = "SELECT * FROM KUPONOK WHERE KOD=? ";
+
+
     public void initialize(){
         conn = DBController.connect();
     }
@@ -104,5 +107,27 @@ public class CouponDAOImpl implements CouponDAO {
         }
 
         return coupons;
+    }
+
+    @Override
+    public Coupon getSelectedCoupon(String code) {
+        Coupon coupon = new Coupon();
+
+        try (PreparedStatement st = conn.prepareStatement(GET_COUPON_STR)){
+            st.setString(1, code);
+
+            ResultSet rs = st.executeQuery();
+
+            while(rs.next()){
+                coupon.setCode(rs.getString("KOD"));
+                coupon.setDiscount(rs.getInt("KEDVEZMENY"));
+                coupon.setGenre(rs.getString("MUFAJ"));
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return coupon;
     }
 }

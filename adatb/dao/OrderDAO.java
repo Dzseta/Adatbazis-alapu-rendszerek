@@ -9,5 +9,5 @@ public interface OrderDAO {
     boolean add(Order order);
     boolean delete(Order order);
     List<Order> list();
-    boolean quantityNumber(Order order);
+    boolean quantityNumber(Order order, int id);
 }

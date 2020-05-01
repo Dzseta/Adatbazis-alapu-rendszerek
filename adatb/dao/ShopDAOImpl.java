@@ -21,6 +21,8 @@ public class ShopDAOImpl implements ShopDAO {
 
     private static final String LIST_SHOP_STR = "SELECT * FROM ARUHAZAK ";
 
+    private static final String GET_SHOP_STR = "SELECT * FROM ARUHAZAK WHERE NEV=? ";
+
     public void initialize(){
         conn = DBController.connect();
     }
@@ -116,5 +118,31 @@ public class ShopDAOImpl implements ShopDAO {
         }
 
         return shops;
+    }
+
+    @Override
+    public Shop getSelectedShop(String name) {
+        Shop shop = new Shop();
+
+        try (PreparedStatement st = conn.prepareStatement(GET_SHOP_STR)){
+            st.setString(1, name);
+
+            ResultSet rs = st.executeQuery();
+
+            while(rs.next()){
+                shop.setId(rs.getInt("AZONOSITO"));
+                shop.setZipcode(rs.getInt("IRANYITOSZAM"));
+                shop.setCity(rs.getString("VAROS"));
+                shop.setStreet(rs.getString("UTCA"));
+                shop.setHnumber(rs.getString("HAZSZAM"));
+                shop.setName(rs.getString("NEV"));
+            }
+
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return shop;
     }
 }

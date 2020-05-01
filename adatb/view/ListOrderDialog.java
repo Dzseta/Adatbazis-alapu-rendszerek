@@ -70,12 +70,14 @@ public class ListOrderDialog extends Stage {
         TableColumn<Order, String> isbnCol = new TableColumn<>("Isbn");
         TableColumn<Order, String> amountCol = new TableColumn<>("Darabszám");
         TableColumn<Order, String> timeCol = new TableColumn<>("Rendelés ideje");
+        TableColumn<Order, String> subtotalCol = new TableColumn<>("Részösszeg");
 
         isbnCol.setCellValueFactory(data -> data.getValue().isbnProperty().asString());
         amountCol.setCellValueFactory(data -> data.getValue().quantityProperty().asString());
         timeCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTimeOrder().toString()));
+        subtotalCol.setCellValueFactory(data -> data.getValue().subtotalProperty().asString());
 
-        table.getColumns().addAll(isbnCol, amountCol, timeCol);
+        table.getColumns().addAll(isbnCol, amountCol, timeCol, subtotalCol);
         List<Order> list = orderController.list();
         table.setItems(FXCollections.observableList(list));
     }

@@ -5,17 +5,16 @@ import hu.adatb.model.Book;
 import hu.adatb.model.Shop;
 import hu.adatb.view.*;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
@@ -32,6 +31,7 @@ public class App extends Application {
     private OrderController orderController = new OrderController();
     private SeriesController seriesController = new SeriesController();
     private AuthorController authorController = new AuthorController();
+    private StatsController statsController = new StatsController();
 
     private SessionController sessionController = SessionController.getInstance();
     private ShoppingCart shoppingCart = ShoppingCart.getInstance();
@@ -47,13 +47,16 @@ public class App extends Application {
         contents.prefHeightProperty().bind(stage.heightProperty());
         contents.prefWidthProperty().bind(stage.widthProperty());
         books = createBookPanels(stage);
+        GridPane search = createSearchBar(stage);
 
         Button refreshButton = new Button("Frissítés");
         refreshButton.setOnAction(e ->refreshContents(stage));
 
+        contents.setTop(search);
         contents.setCenter(books);
         contents.setBottom(refreshButton);
         BorderPane.setAlignment(refreshButton, Pos.CENTER);
+        BorderPane.setAlignment(search, Pos.CENTER);
 
         root.getChildren().add(contents);
 
@@ -65,6 +68,7 @@ public class App extends Application {
     private MenuBar createMenuBar(Stage stage){
         MenuBar menuBar = new MenuBar();
         Menu userMenu = new Menu("Felhasználó");
+        Menu statsMenu = new Menu("Toplisták");
         Menu bookMenu = new Menu("Könyv");
         Menu publisherMenu = new Menu("Kiadó");
         Menu shopMenu = new Menu("Áruházak");
@@ -74,13 +78,15 @@ public class App extends Application {
         Menu orderMenu = new Menu("Rendelések");
         Menu seriesMenu = new Menu("Könyvsorozatok");
 
-        menuBar.getMenus().addAll(userMenu, orderMenu, bookMenu, publisherMenu, shopMenu, couponMenu, genreMenu, stockMenu, seriesMenu);
+        menuBar.getMenus().addAll(userMenu, statsMenu, orderMenu, bookMenu, publisherMenu, shopMenu, couponMenu, genreMenu, stockMenu, seriesMenu);
 
         MenuItem addUser = new MenuItem("Regisztráció");
         MenuItem loginUser = new MenuItem("Bejelentkezés");
         MenuItem logoutUser = new MenuItem("Kijelentkezés");
         MenuItem userPage = new MenuItem("Saját adatok");
         MenuItem cartMenu = new MenuItem("Bevásárlókosár");
+        MenuItem topList = new MenuItem("Legkelendőbb könyvek");
+        MenuItem adminStats = new MenuItem("Részletes statisztikák");
         MenuItem addBook = new MenuItem("Könyv felvétele");
         MenuItem listBook = new MenuItem("Könyvek listázása");
         MenuItem addPublisher = new MenuItem("Kiadó felvétele");
@@ -101,6 +107,9 @@ public class App extends Application {
         userPage.setOnAction(e -> new UserDataDialog(userController));
         cartMenu.setOnAction(e -> shoppingCart.show());
         logoutUser.setOnAction(e -> sessionController.logout());
+
+        topList.setOnAction(e -> new TopListDialog(statsController, bookController, authorController));
+        adminStats.setOnAction(e -> new AdminStatsDialog());
 
         addBook.setOnAction(e -> new AddBookDialog(bookController, publisherController, authorController, genreController));
         listBook.setOnAction(e -> new ListBookDialog(bookController, publisherController, authorController, genreController));
@@ -124,7 +133,7 @@ public class App extends Application {
         addSeries.setOnAction(e -> new AddSeriesDialog(seriesController));
         listSeries.setOnAction(e -> new ListSeriesDialog(seriesController));
 
-
+        addBook.visibleProperty().bind(sessionController.isAdmin());
         addUser.visibleProperty().bind(sessionController.isLoggedIn().not());
         loginUser.visibleProperty().bind(sessionController.isLoggedIn().not());
         cartMenu.visibleProperty().bind(sessionController.isLoggedIn());
@@ -139,8 +148,10 @@ public class App extends Application {
         orderMenu.disableProperty().bind(sessionController.isLoggedIn().not());
         listOrder.visibleProperty().bind(sessionController.isLoggedIn());
         seriesMenu.disableProperty().bind(sessionController.isAdmin().not());
+        adminStats.visibleProperty().bind(sessionController.isAdmin());
 
         userMenu.getItems().addAll(addUser, loginUser, cartMenu, userPage, logoutUser);
+        statsMenu.getItems().addAll(topList, adminStats);
         bookMenu.getItems().addAll(addBook, listBook);
         publisherMenu.getItems().addAll(addPublisher, listPublisher);
         shopMenu.getItems().addAll(addShop, listShop);
@@ -158,10 +169,51 @@ public class App extends Application {
         panels.setOrientation(Orientation.HORIZONTAL);
         panels.prefWidthProperty().bind(stage.widthProperty());
         for(Book b: bookController.list()){
-            BookPanel panel = new BookPanel(b, authorController, genreController);
+            BookPanel panel = new BookPanel(b, authorController, genreController, bookController);
             panel.prefWidthProperty().bind(stage.widthProperty().subtract(20).divide(3));
             panels.getChildren().add(panel);
         }
+        return panels;
+    }
+
+    private GridPane createSearchBar(Stage stage){
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(10));
+
+        TextField titleField = new TextField();
+        TextField authorField = new TextField();
+        TextField genreField = new TextField();
+
+        Button searchButton = new Button("Keresés");
+        searchButton.setOnAction(e -> {
+            contents.getChildren().remove(books);
+            books = createBookPanelsWithQuery(stage, titleField.getText(), authorField.getText(), genreField.getText());
+            contents.setCenter(books);
+        });
+
+        grid.add(new Text("Cím:"), 0, 0);
+        grid.add(titleField, 1, 0);
+        grid.add(new Text("Szerző:"), 2, 0);
+        grid.add(authorField, 3, 0);
+        grid.add(new Text("Műfaj:"), 4, 0);
+        grid.add(genreField, 5, 0);
+        grid.add(searchButton, 6, 0);
+
+        return grid;
+    }
+
+    private FlowPane createBookPanelsWithQuery(Stage stage, String title, String author, String genre){
+        FlowPane panels = new FlowPane();
+        panels.setOrientation(Orientation.HORIZONTAL);
+        panels.prefWidthProperty().bind(stage.widthProperty());
+        for(Book b: bookController.getSelectedBooks(title, author, genre)){
+            BookPanel panel = new BookPanel(b, authorController, genreController, bookController);
+            panel.prefWidthProperty().bind(stage.widthProperty().subtract(20).divide(3));
+            panels.getChildren().add(panel);
+        }
+
         return panels;
     }
 

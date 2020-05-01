@@ -9,4 +9,7 @@ public interface BookDAO {
     boolean delete(Book book);
     boolean update(Book book, int oldIsbn);
     List<Book> list();
+    Book getSelectedBook(int isbn);
+    List<Book> getSelectedBooks(String title, String author, String genre);
+    Book getSimilar(int isbn);
 }

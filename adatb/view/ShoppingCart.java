@@ -1,7 +1,6 @@
 package hu.adatb.view;
 
-import hu.adatb.controller.OrderController;
-import hu.adatb.controller.SessionController;
+import hu.adatb.controller.*;
 import hu.adatb.model.Book;
 import hu.adatb.model.Order;
 import hu.adatb.model.User;
@@ -29,6 +28,9 @@ public class ShoppingCart extends Stage {
 
     private OrderController orderController;
     private SessionController sessionController;
+    private ShopController shopController;
+    private GenreController genreController;
+    private CouponController couponController;
 
     private BorderPane contents;
 
@@ -43,6 +45,9 @@ public class ShoppingCart extends Stage {
         books = new ArrayList<>();
         orderController = new OrderController();
         sessionController = SessionController.getInstance();
+        shopController = new ShopController();
+        genreController = new GenreController();
+        couponController = new CouponController();
         construct();
     }
 
@@ -60,6 +65,7 @@ public class ShoppingCart extends Stage {
         orderButton.setOnAction(e -> {
             User user = sessionController.getUser();
             GridPane grid = (GridPane) contents.getCenter();
+            List<Order> orders = new ArrayList<>();
             int bookNo = 0;
             for(Node n: grid.getChildren()){
                 int amount = 1;
@@ -70,23 +76,16 @@ public class ShoppingCart extends Stage {
                     order.setEmail(user.getEmail());
                     order.setIsbn(books.get(bookNo).getIsbn());
                     order.setQuantity(amount);
-                    order.setLocation(user.getIrsz() + " " + user.getCity() + " " + user.getStreet() + " " + user.getHouse());
-                    if (orderController.quantityNumber(order)) {
-                        Utils.showWarning("Nincs elég könyv a raktárban!");
-                        return;
-                    }
-                    if (orderController.add(order)) {
-                        bookNo++;
-                    } else {
-                        Utils.showWarning("Nem sikerült a rendelés!");
-                        return;
-                    }
+                    order.setSubtotal(amount * books.get(bookNo).getPrice());
+
+                    orders.add(order);
+                    bookNo++;
+
                 }
 
             }
-            books.clear();
-            refreshContents();
-            close();
+
+            new CheckoutDialog(orderController, shopController, couponController, genreController, orders);
         });
         Button cancelButton = new Button("Mégse");
         cancelButton.setOnAction(e -> close());
@@ -127,14 +126,17 @@ public class ShoppingCart extends Stage {
             grid.add(removeButton, 2, index);
 
             index++;
-
         }
-
         return grid;
+    }
+
+    public void clearContents(){
+        books.clear();
+        refreshContents();
+        close();
     }
 
     public void refreshContents(){
         contents.setCenter(createItems());
     }
-
 }

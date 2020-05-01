@@ -14,7 +14,7 @@ public class OrderDAOImpl implements OrderDAO {
 
     private Connection conn;
 
-    private static final String ADD_RENDELESEK_STR = "INSERT INTO RENDELESEK VALUES (?,?,?,?,?,?) ";
+    private static final String ADD_RENDELESEK_STR = "INSERT INTO RENDELESEK VALUES (?,?,?,?,?,?,?) ";
 
     private static final String LIST_RENDELESEK_STR = "SELECT * FROM RENDELESEK ";
 
@@ -24,9 +24,9 @@ public class OrderDAOImpl implements OrderDAO {
 
     private static final String DELETE_RENDELES_STR = "DELETE FROM RENDELESEK WHERE EMAIL=? AND ISBN=? ";
 
-    private static final String SELECT_RAKTARON_STR = "SELECT * FROM RAKTARON WHERE ISBN = ? AND AZONOSITO = 0 ";
+    private static final String SELECT_RAKTARON_STR = "SELECT * FROM RAKTARON WHERE ISBN = ? AND AZONOSITO = ? ";
 
-    private static final String UPDATE_RAKTARON_STR = "UPDATE RAKTARON SET darabszam=? WHERE ISBN = ? AND AZONOSITO = 0 ";
+    private static final String UPDATE_RAKTARON_STR = "UPDATE RAKTARON SET darabszam=? WHERE ISBN = ? AND AZONOSITO = ? ";
 
     public void initialize(){
         conn = DBController.connect();
@@ -79,6 +79,7 @@ public class OrderDAOImpl implements OrderDAO {
             long millis = LocalDateTime.now().toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli();
             st.setDate(5, new Date(millis));
             st.setDate(6, null);
+            st.setInt(7, order.getSubtotal());
 
             int res = st.executeUpdate();
 
@@ -108,6 +109,7 @@ public class OrderDAOImpl implements OrderDAO {
                 order.setLocation(rs.getString("ATV_HELYSZIN"));
                 order.setTimeOrder(rs.getDate("RENDELES_IDEJE"));
                 order.setTimeReceipt(rs.getDate("ATVETEL_IDEJE"));
+                order.setSubtotal(rs.getInt("SUBTOTAL"));
 
                 orders.add(order);
             }
@@ -121,10 +123,11 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     @Override
-    public boolean quantityNumber(Order order) {
+    public boolean quantityNumber(Order order, int id) {
         int count = 0;
         try (PreparedStatement st = conn.prepareStatement(SELECT_RAKTARON_STR)){
             st.setInt(1, order.getIsbn());
+            st.setInt(2, id);
 
             int res = st.executeUpdate();
 
@@ -138,6 +141,7 @@ public class OrderDAOImpl implements OrderDAO {
                     try (PreparedStatement st2 = conn.prepareStatement(UPDATE_RAKTARON_STR)){
                         st2.setInt(1, count);
                         st2.setInt(2, order.getIsbn());
+                        st2.setInt(3, id);
 
                         int res2 = st2.executeUpdate();
 

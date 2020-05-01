@@ -25,4 +25,16 @@ public class BookController {
     public List<Book> list(){
         return dao.list();
     }
+
+    public Book getSelectedBook(int isbn){
+        return dao.getSelectedBook(isbn);
+    }
+
+    public List<Book> getSelectedBooks(String title, String author, String genre){
+        return dao.getSelectedBooks(title, author, genre);
+    }
+
+    public Book getSimilar(int isbn){
+        return dao.getSimilar(isbn);
+    }
 }

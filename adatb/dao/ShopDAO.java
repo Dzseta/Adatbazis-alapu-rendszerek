@@ -9,4 +9,5 @@ public interface ShopDAO {
     boolean delete(Shop shop);
     boolean update(Shop shop, int oldId);
     List<Shop> list();
+    Shop getSelectedShop(String name);
 }
