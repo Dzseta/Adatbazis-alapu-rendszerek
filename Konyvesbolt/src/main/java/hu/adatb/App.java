@@ -31,6 +31,7 @@ public class App extends Application {
     private OrderController orderController = new OrderController();
     private SeriesController seriesController = new SeriesController();
     private AuthorController authorController = new AuthorController();
+    private StatsController statsController = new StatsController();
 
     private SessionController sessionController = SessionController.getInstance();
     private ShoppingCart shoppingCart = ShoppingCart.getInstance();
@@ -67,6 +68,7 @@ public class App extends Application {
     private MenuBar createMenuBar(Stage stage){
         MenuBar menuBar = new MenuBar();
         Menu userMenu = new Menu("Felhasználó");
+        Menu statsMenu = new Menu("Toplisták");
         Menu bookMenu = new Menu("Könyv");
         Menu publisherMenu = new Menu("Kiadó");
         Menu shopMenu = new Menu("Áruházak");
@@ -76,13 +78,15 @@ public class App extends Application {
         Menu orderMenu = new Menu("Rendelések");
         Menu seriesMenu = new Menu("Könyvsorozatok");
 
-        menuBar.getMenus().addAll(userMenu, orderMenu, bookMenu, publisherMenu, shopMenu, couponMenu, genreMenu, stockMenu, seriesMenu);
+        menuBar.getMenus().addAll(userMenu, statsMenu, orderMenu, bookMenu, publisherMenu, shopMenu, couponMenu, genreMenu, stockMenu, seriesMenu);
 
         MenuItem addUser = new MenuItem("Regisztráció");
         MenuItem loginUser = new MenuItem("Bejelentkezés");
         MenuItem logoutUser = new MenuItem("Kijelentkezés");
         MenuItem userPage = new MenuItem("Saját adatok");
         MenuItem cartMenu = new MenuItem("Bevásárlókosár");
+        MenuItem topList = new MenuItem("Legkelendőbb könyvek");
+        MenuItem adminStats = new MenuItem("Részletes statisztikák");
         MenuItem addBook = new MenuItem("Könyv felvétele");
         MenuItem listBook = new MenuItem("Könyvek listázása");
         MenuItem addPublisher = new MenuItem("Kiadó felvétele");
@@ -103,6 +107,9 @@ public class App extends Application {
         userPage.setOnAction(e -> new UserDataDialog(userController));
         cartMenu.setOnAction(e -> shoppingCart.show());
         logoutUser.setOnAction(e -> sessionController.logout());
+
+        topList.setOnAction(e -> new TopListDialog(statsController, bookController, authorController));
+        adminStats.setOnAction(e -> new AdminStatsDialog());
 
         addBook.setOnAction(e -> new AddBookDialog(bookController, publisherController, authorController, genreController));
         listBook.setOnAction(e -> new ListBookDialog(bookController, publisherController, authorController, genreController));
@@ -127,6 +134,7 @@ public class App extends Application {
         listSeries.setOnAction(e -> new ListSeriesDialog(seriesController));
 
 
+        addBook.visibleProperty().bind(sessionController.isAdmin());
         addUser.visibleProperty().bind(sessionController.isLoggedIn().not());
         loginUser.visibleProperty().bind(sessionController.isLoggedIn().not());
         cartMenu.visibleProperty().bind(sessionController.isLoggedIn());
@@ -141,8 +149,10 @@ public class App extends Application {
         orderMenu.disableProperty().bind(sessionController.isLoggedIn().not());
         listOrder.visibleProperty().bind(sessionController.isLoggedIn());
         seriesMenu.disableProperty().bind(sessionController.isAdmin().not());
+        adminStats.visibleProperty().bind(sessionController.isAdmin());
 
         userMenu.getItems().addAll(addUser, loginUser, cartMenu, userPage, logoutUser);
+        statsMenu.getItems().addAll(topList, adminStats);
         bookMenu.getItems().addAll(addBook, listBook);
         publisherMenu.getItems().addAll(addPublisher, listPublisher);
         shopMenu.getItems().addAll(addShop, listShop);
