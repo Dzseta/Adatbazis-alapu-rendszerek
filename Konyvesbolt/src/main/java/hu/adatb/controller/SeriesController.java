@@ -27,6 +27,10 @@ public class SeriesController {
         return dao.list();
     }
 
+    public List<Series> listDistinct(){
+        return dao.listDistinct();
+    }
+
     public int getSalesPerSeries(String name){
         return dao.getSalesPerSeries(name);
     }

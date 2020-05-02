@@ -1,10 +1,7 @@
 package hu.adatb.view;
 
 import hu.adatb.controller.*;
-import hu.adatb.model.Coupon;
-import hu.adatb.model.Order;
-import hu.adatb.model.Shop;
-import hu.adatb.model.User;
+import hu.adatb.model.*;
 import hu.adatb.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -97,8 +94,11 @@ public class CheckoutDialog extends Stage {
                 }
 
                 for(int i=0; i<orders.size(); i++){
-                    if(genreController.getSelectedGenre(orders.get(i).getIsbn()).contains(coupon.getGenre())){
-                        orders.get(i).setSubtotal(orders.get(i).getSubtotal() * ((100 - coupon.getDiscount()) / 100));
+                    List<Genre> selectedGenre = genreController.getSelectedGenre(orders.get(i).getIsbn());
+                    for(Genre g: selectedGenre){
+                        if(g.getName().equals(coupon.getGenre())){
+                            orders.get(i).setSubtotal(orders.get(i).getSubtotal() * ((100 - coupon.getDiscount()) / 100.0));
+                        }
                     }
                 }
             }

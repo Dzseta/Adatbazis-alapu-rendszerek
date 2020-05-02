@@ -17,7 +17,7 @@ public class BookDAOImpl implements BookDAO{
 
     private static final String UPDATE_KONYVEK_STR = "UPDATE KONYVEK SET isbn=?,cim=?,kiadas=?,kiadonev=?,oldalszam=?,kotes=?,meret=?,ar=? WHERE ISBN = ? ";
 
-    private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK ";
+    private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK ORDER BY ISBN ";
 
     private static final String GET_KONYV_STR = "SELECT * FROM KONYVEK WHERE ISBN=? ";
 

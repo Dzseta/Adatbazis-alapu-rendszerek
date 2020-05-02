@@ -1,9 +1,6 @@
 package hu.adatb.model;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 import java.util.Date;
 
@@ -14,9 +11,9 @@ public class Order {
     private StringProperty location = new SimpleStringProperty();
     private Date timeOrder = new Date();
     private Date timeReceipt = new Date();
-    private IntegerProperty subtotal = new SimpleIntegerProperty();
+    private DoubleProperty subtotal = new SimpleDoubleProperty();
 
-    public Order(String email, int isbn, int quantity, String location, Date timeOrder, Date timeReceipt, int subtotal){
+    public Order(String email, int isbn, int quantity, String location, Date timeOrder, Date timeReceipt, double subtotal){
         this.email.setValue(email);
         this.isbn.setValue(isbn);
         this.quantity.setValue(quantity);
@@ -100,15 +97,15 @@ public class Order {
         this.timeReceipt = timeReceipt;
     }
 
-    public int getSubtotal() {
+    public double getSubtotal() {
         return subtotal.get();
     }
 
-    public IntegerProperty subtotalProperty() {
+    public DoubleProperty subtotalProperty() {
         return subtotal;
     }
 
-    public void setSubtotal(int subtotal) {
+    public void setSubtotal(double subtotal) {
         this.subtotal.set(subtotal);
     }
 }

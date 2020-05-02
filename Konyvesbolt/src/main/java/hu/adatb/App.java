@@ -38,11 +38,13 @@ public class App extends Application {
 
     private FlowPane books;
     private BorderPane contents;
+    private ScrollPane scrollPane;
 
     @Override
     public void start(Stage stage) {
         VBox root = new VBox(createMenuBar(stage));
 
+        scrollPane = new ScrollPane();
         contents = new BorderPane();
         contents.prefHeightProperty().bind(stage.heightProperty());
         contents.prefWidthProperty().bind(stage.widthProperty());
@@ -52,15 +54,16 @@ public class App extends Application {
         Button refreshButton = new Button("Frissítés");
         refreshButton.setOnAction(e -> refreshContents(stage));
 
+        scrollPane.setContent(books);
         contents.setTop(search);
-        contents.setCenter(books);
+        contents.setCenter(scrollPane);
         contents.setBottom(refreshButton);
         BorderPane.setAlignment(refreshButton, Pos.CENTER);
         BorderPane.setAlignment(search, Pos.CENTER);
 
         root.getChildren().add(contents);
 
-        Scene scene = new Scene(root, 960, 520);
+        Scene scene = new Scene(root, 1280, 720);
         stage.setScene(scene);
         stage.show();
     }
@@ -189,9 +192,10 @@ public class App extends Application {
 
         Button searchButton = new Button("Keresés");
         searchButton.setOnAction(e -> {
-            contents.getChildren().remove(books);
+            contents.getChildren().remove(scrollPane);
             books = createBookPanelsWithQuery(stage, titleField.getText(), authorField.getText(), genreField.getText());
-            contents.setCenter(books);
+            scrollPane.setContent(books);
+            contents.setCenter(scrollPane);
         });
 
         grid.add(new Text("Cím:"), 0, 0);
@@ -219,9 +223,10 @@ public class App extends Application {
     }
 
     public void refreshContents(Stage stage){
-        contents.getChildren().remove(books);
+        contents.getChildren().remove(scrollPane);
         books = createBookPanels(stage);
-        contents.setCenter(books);
+        scrollPane.setContent(books);
+        contents.setCenter(scrollPane);
     }
 
     public static void main(String[] args) {

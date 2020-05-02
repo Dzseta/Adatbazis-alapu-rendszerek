@@ -83,7 +83,7 @@ public class OrderDAOImpl implements OrderDAO {
             long millis = LocalDateTime.now().toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli();
             st.setDate(5, new Date(millis));
             st.setDate(6, null);
-            st.setInt(7, order.getSubtotal());
+            st.setDouble(7, order.getSubtotal());
 
             int res = st.executeUpdate();
 

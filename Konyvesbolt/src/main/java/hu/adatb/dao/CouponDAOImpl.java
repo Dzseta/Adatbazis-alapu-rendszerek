@@ -111,7 +111,7 @@ public class CouponDAOImpl implements CouponDAO {
     public Coupon getSelectedCoupon(String code) {
         Coupon coupon = new Coupon();
 
-        try (PreparedStatement st = conn.prepareStatement(GET_COUPON_STR)){
+        try (PreparedStatement st = conn.prepareStatement(GET_CPN_STR)){
             st.setString(1, code);
 
             ResultSet rs = st.executeQuery();

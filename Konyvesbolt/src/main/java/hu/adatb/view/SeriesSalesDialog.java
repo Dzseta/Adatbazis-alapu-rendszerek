@@ -68,7 +68,7 @@ public class SeriesSalesDialog extends Stage {
         salesCol.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(seriesController.getSalesPerSeries(data.getValue().getName()))));
 
         table.getColumns().addAll(nameCol, salesCol);
-        List<Series> list = seriesController.list();
+        List<Series> list = seriesController.listDistinct();
         table.setItems(FXCollections.observableList(list));
     }
 

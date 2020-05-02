@@ -20,6 +20,8 @@ public class SeriesDAOImpl implements SeriesDAO{
 
     private static final String LIST_SOROZAT_STR = "SELECT * FROM SOROZAT ";
 
+    private static final String LIST_DIST_SOROZAT_STR = "SELECT DISTINCT NEV FROM SOROZAT ";
+
     private static final String LIST_KONYVEK_STR = "SELECT * FROM KONYVEK WHERE ISBN=? ";
 
     private static final String GET_SALES_STR = "{? = call GET_SALES_PER_SERIES(?)} ";
@@ -116,6 +118,27 @@ public class SeriesDAOImpl implements SeriesDAO{
                 Series series = new Series();
                 series.setName(rs.getString("nev"));
                 series.setIsbn(rs.getInt("isbn"));
+
+                serieslist.add(series);
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return serieslist;
+    }
+
+    @Override
+    public List<Series> listDistinct() {
+        List<Series> serieslist = new ArrayList<>();
+
+        try (PreparedStatement st = conn.prepareStatement(LIST_DIST_SOROZAT_STR)){
+            ResultSet rs = st.executeQuery();
+
+            while(rs.next()){
+                Series series = new Series();
+                series.setName(rs.getString("nev"));
 
                 serieslist.add(series);
             }
