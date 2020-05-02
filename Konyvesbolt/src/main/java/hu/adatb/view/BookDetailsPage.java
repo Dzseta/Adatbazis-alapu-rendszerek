@@ -55,7 +55,7 @@ public class BookDetailsPage extends Stage {
             builder.append(a.getName());
             builder.append(", ");
         }
-        builder.delete(builder.length() - 2, builder.length() - 1);
+        if (builder.length() > 2) builder.delete(builder.length() - 2, builder.length() - 1);
 
         Text authors = new Text("Szerző(k): " + builder.toString());
 
@@ -64,7 +64,7 @@ public class BookDetailsPage extends Stage {
             builder.append(g.getName());
             builder.append(", ");
         }
-        builder.delete(builder.length() - 2, builder.length() - 1);
+        if (builder.length() > 2) builder.delete(builder.length() - 2, builder.length() - 1);
 
 
         Text published = new Text(book.getPublished() + ", ");

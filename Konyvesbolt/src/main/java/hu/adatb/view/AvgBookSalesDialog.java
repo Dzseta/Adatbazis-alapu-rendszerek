@@ -39,6 +39,9 @@ public class AvgBookSalesDialog extends Stage {
 
         initializeTable();
 
+        table.prefHeightProperty().bind(grid.heightProperty());
+        table.prefWidthProperty().bind(grid.widthProperty());
+
         Button refreshButton = new Button("Frissítés");
         refreshButton.setOnAction(e -> refreshTable());
 
@@ -54,7 +57,7 @@ public class AvgBookSalesDialog extends Stage {
         grid.add(table, 0, 0);
         grid.add(buttonPane, 0, 1);
 
-        Scene scene = new Scene(grid);
+        Scene scene = new Scene(grid, 580, 480);
         setScene(scene);
         setTitle("Könyvek rendelésenkénti átlagos mennyisége");
         show();

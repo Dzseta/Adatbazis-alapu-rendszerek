@@ -130,7 +130,7 @@ public class App extends Application {
 
         listOrder.setOnAction(e -> new ListOrderDialog(orderController));
 
-        addSeries.setOnAction(e -> new AddSeriesDialog(seriesController));
+        addSeries.setOnAction(e -> new AddSeriesDialog(seriesController, bookController));
         listSeries.setOnAction(e -> new ListSeriesDialog(seriesController));
 
 

@@ -22,7 +22,7 @@ public class OrderDAOImpl implements OrderDAO {
 
     private static final String LIST_FELHASZNALOK_STR = "SELECT * FROM FELHASZNALOK WHERE EMAIL=? ";
 
-    private static final String DELETE_RENDELES_STR = "DELETE FROM RENDELESEK WHERE EMAIL=? AND ISBN=? ";
+    private static final String DELETE_RENDELES_STR = "DELETE FROM RENDELESEK WHERE EMAIL=? AND ISBN=? AND RENDELES_IDEJE =? ";
 
     private static final String SELECT_RAKTARON_STR = "SELECT * FROM RAKTARON WHERE ISBN = ? AND AZONOSITO = ? ";
 
@@ -155,6 +155,7 @@ public class OrderDAOImpl implements OrderDAO {
         try (PreparedStatement st = conn.prepareStatement(DELETE_RENDELES_STR)){
             st.setString(1, order.getEmail());
             st.setInt(2, order.getIsbn());
+            st.setDate(3, new java.sql.Date(order.getTimeOrder().getTime()));
 
             int res = st.executeUpdate();
 

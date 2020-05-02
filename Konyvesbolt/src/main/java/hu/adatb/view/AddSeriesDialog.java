@@ -1,25 +1,35 @@
 package hu.adatb.view;
 
+import hu.adatb.controller.BookController;
 import hu.adatb.controller.SeriesController;
+import hu.adatb.model.Book;
 import hu.adatb.model.Series;
 import hu.adatb.util.Utils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AddSeriesDialog extends Stage {
 
     SeriesController controller;
+    private BookController bookController;
 
-    public AddSeriesDialog(SeriesController controller){
+    public AddSeriesDialog(SeriesController controller, BookController bookController){
         this.controller = controller;
+        this.bookController = bookController;
         construct();
     }
 
@@ -30,7 +40,7 @@ public class AddSeriesDialog extends Stage {
         grid.setPadding(new Insets(10));
 
         TextField nameField = new TextField();
-        TextField isbnField = new TextField();
+        ComboBox<Integer> isbnField = new ComboBox<>(listBook());
 
         grid.add(new Text("Sorozat neve:"), 0, 0);
         grid.add(nameField, 1 , 0);
@@ -40,8 +50,8 @@ public class AddSeriesDialog extends Stage {
         Button okButton = new Button("Sorozat hozzáadása a könyvhöz");
         okButton.setDefaultButton(true);
         okButton.setOnAction(e -> {
-            if(isbnField.getText().contentEquals("")){
-                Utils.showWarning("Az ISBN szám nem lehet üres!");
+            if(isbnField.getSelectionModel().isEmpty()){
+                Utils.showWarning("Az áruház kód nem lehet üres!");
                 return;
             }
             if(nameField.getText().contentEquals("")){
@@ -49,20 +59,12 @@ public class AddSeriesDialog extends Stage {
                 return;
             }
 
-            int isbn;
-            try{
-                isbn = Integer.parseInt(isbnField.getText());
-            } catch (Exception ex){
-                Utils.showWarning("Az ISBN nem szám!");
-                return;
-            }
-
-            if(controller.foreignKey(new Series(nameField.getText(), isbn))) {
+            if(controller.foreignKey(new Series(nameField.getText(), isbnField.getSelectionModel().getSelectedItem()))) {
                 Utils.showWarning("Nincs ilyen könyv!");
                 return;
             }
 
-            if(controller.add(new Series(nameField.getText(), isbn))){
+            if(controller.add(new Series(nameField.getText(), isbnField.getSelectionModel().getSelectedItem()))){
                 close();
             } else {
                 Utils.showWarning("Nem sikerült a sorozathoz adás!");
@@ -89,5 +91,20 @@ public class AddSeriesDialog extends Stage {
         setScene(scene);
         setTitle("Sorozathoz adás");
         show();
+    }
+
+    private ObservableList<Integer> listBook(){
+        ObservableList<Integer> list = null;
+
+        List<Book> bookList = bookController.list();
+        List<Integer> bookIsbns = new ArrayList<>();
+
+        for(Book b: bookList){
+            bookIsbns.add(b.getIsbn());
+        }
+
+        list = FXCollections.observableList(bookIsbns);
+
+        return list;
     }
 }
