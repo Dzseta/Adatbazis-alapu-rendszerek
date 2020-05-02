@@ -26,6 +26,8 @@ public class OrderDAOImpl implements OrderDAO {
 
     private static final String SELECT_RAKTARON_STR = "SELECT * FROM RAKTARON WHERE ISBN = ? AND AZONOSITO = ? ";
 
+    private static final String UPDATE_RAKTAR_STR = "UPDATE RAKTARON SET DARABSZAM = ? WHERE ISBN = ? AND AZONOSITO = ? ";
+
     private static final String GET_CITY_SALES_STR = "SELECT SUM(DARABSZAM) FROM FELHASZNALOK, RENDELESEK WHERE " +
             "FELHASZNALOK.EMAIL = RENDELESEK.EMAIL AND FELHASZNALOK.VAROS = ? ";
 
@@ -130,8 +132,10 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public boolean quantityNumber(Order order, int id) {
-        int count = 0;
-        try (PreparedStatement st = conn.prepareStatement(SELECT_RAKTARON_STR)){
+        int count;
+        try (PreparedStatement st = conn.prepareStatement(SELECT_RAKTARON_STR);
+            PreparedStatement updateSt = conn.prepareStatement(UPDATE_RAKTAR_STR)
+        ){
             st.setInt(1, order.getIsbn());
             st.setInt(2, id);
 
@@ -140,14 +144,21 @@ public class OrderDAOImpl implements OrderDAO {
             if((rs.next())) {
                 count = rs.getInt(3);
                 if (order.getQuantity() <= count) {
-                    return true;
+                    updateSt.setInt(1, count - order.getQuantity());
+                    updateSt.setInt(2, order.getIsbn());
+                    updateSt.setInt(3, id);
+
+                    int res = updateSt.executeUpdate();
+                    if(res == 1){
+                        return true;
+                    }
                 }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 
     @Override

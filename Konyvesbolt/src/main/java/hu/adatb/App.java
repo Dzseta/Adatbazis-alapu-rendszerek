@@ -64,6 +64,7 @@ public class App extends Application {
         root.getChildren().add(contents);
 
         Scene scene = new Scene(root, 1280, 720);
+        stage.setTitle("kbmindegy.hu");
         stage.setScene(scene);
         stage.show();
     }

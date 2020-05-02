@@ -57,7 +57,10 @@ public class BookDAOImpl implements BookDAO{
                 return true;
             }
 
-        } catch (Exception e){
+        } catch (SQLException e){
+            if(e.getErrorCode() == 20111){
+                return false;
+            }
             e.printStackTrace();
         }
         return false;
@@ -74,7 +77,10 @@ public class BookDAOImpl implements BookDAO{
                 return true;
             }
 
-        } catch (Exception e){
+        } catch (SQLException e){
+            if(e.getErrorCode() == 20111){
+                return false;
+            }
             e.printStackTrace();
         }
         return false;
@@ -99,7 +105,10 @@ public class BookDAOImpl implements BookDAO{
                 return true;
             }
 
-        } catch (Exception e){
+        } catch (SQLException e){
+            if(e.getErrorCode() == 20111){
+                return false;
+            }
             e.printStackTrace();
         }
         return false;

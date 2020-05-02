@@ -41,7 +41,7 @@ public class StockChartDialog extends Stage {
         Scene scene = new Scene(new Group());
         stage.setTitle("Raktáron lévő könyvek boltonként");
         stage.setWidth(500);
-        stage.setHeight(500);
+        stage.setHeight(600);
 
         PieChart chart = new PieChart();
 
